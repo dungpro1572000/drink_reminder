@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">DrinkReminder</string>
+    <string name="next">Next</string>
+    <string name="get_start">Get Start</string>
+    <string name="onboarding_title_1">Track your daily water intake with Us.</string>
+    <string name="onboarding_content_1">Achieve your hydration goals with a simple tap!</string>
+    <string name="onboarding_title_2">Smart Reminders Tailored to You</string>
+    <string name="onboarding_content_2">Quick and easy to set your hydration goal, then track your daily water intake progress.</string>
+    <string name="onboarding_title_3">Easy to Use – Drink, Tap, Repeat</string>
+    <string name="onboarding_content_3">Staying hydrated every day is easy with Drops Water Tracker.</string>
+</resources>

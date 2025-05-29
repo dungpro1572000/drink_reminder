@@ -1,0 +1,54 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="200"
+    android:viewportHeight="100">
+
+    <!-- Mắt trái -->
+    <group android:translateX="20">
+        <!-- Mí mắt -->
+        <path
+            android:fillColor="#000000"
+            android:pathData="M0,50 Q30,0 60,50 Q30,100 0,50 Z" />
+
+        <!-- Tròng trắng -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M10,50 A20,20 0 1,1 50,50 A20,20 0 1,1 10,50 Z" />
+
+        <!-- Tròng đen (con ngươi) -->
+        <path
+            android:fillColor="#222222"
+            android:pathData="M25,50 A8,8 0 1,1 41,50 A8,8 0 1,1 25,50 Z" />
+
+        <!-- Highlight mắt trái -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,45 A2,2 0 1,1 34,45 A2,2 0 1,1 30,45 Z"
+            android:fillAlpha="0.5" />
+    </group>
+
+    <!-- Mắt phải -->
+    <group android:translateX="120">
+        <!-- Mí mắt -->
+        <path
+            android:fillColor="#000000"
+            android:pathData="M0,50 Q30,0 60,50 Q30,100 0,50 Z" />
+
+        <!-- Tròng trắng -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M10,50 A20,20 0 1,1 50,50 A20,20 0 1,1 10,50 Z" />
+
+        <!-- Tròng đen (con ngươi) -->
+        <path
+            android:fillColor="#222222"
+            android:pathData="M25,50 A8,8 0 1,1 41,50 A8,8 0 1,1 25,50 Z" />
+
+        <!-- Highlight mắt phải -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,45 A2,2 0 1,1 34,45 A2,2 0 1,1 30,45 Z"
+            android:fillAlpha="0.5" />
+    </group>
+</vector>
