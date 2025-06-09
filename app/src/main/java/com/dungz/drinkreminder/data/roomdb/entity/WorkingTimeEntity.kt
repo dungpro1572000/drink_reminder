@@ -1,4 +1,4 @@
-package com.dungz.drinkreminder.data.roomdb.model
+package com.dungz.drinkreminder.data.roomdb.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,11 +7,11 @@ import androidx.room.TypeConverter
 @Entity(tableName = "WorkingTime")
 data class WorkingTime(
     @PrimaryKey
-    val id:Int = 0,
-    val startingHour: Int,
-    val startingMinute: Int,
-    val endHour: Int,
-    val endMinute: Int,
+    val id: Int = 0,
+    val morningStartTime: String,
+    val morningEndTime: String,
+    val afternoonStartTime: String,
+    val afternoonEndTime: String,
     val repeatDay: List<Int>,
 )
 

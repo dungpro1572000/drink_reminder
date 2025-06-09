@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val primaryColor = Color(0xFF5DCCFC)
 val whiteColor = Color(0xFFFFFFFF)
-val blueBackgroundColor = Color(0xFFC1E4FF)
+val blueBackgroundColor = Color(0xFFF4F8FB)
 val primaryButtonColor = Color(0xFF5DCCFC)
 val textInPrimaryButtonColor = Color(0xFFFFFFFF)
 val normalTextColor = Color(0xFF141A1E)

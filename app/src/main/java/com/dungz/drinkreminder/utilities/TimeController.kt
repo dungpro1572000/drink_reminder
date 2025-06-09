@@ -5,9 +5,9 @@ import com.dungz.drinkreminder.di.IoDispatcher
 import javax.inject.Inject
 
 class TimeController @Inject constructor(
-    appDatabase: AppDatabase,
+    private val appDatabase: AppDatabase,
     @IoDispatcher
-    ioDispatcher: IoDispatcher
+    private val ioDispatcher: IoDispatcher
 ) {
 
 }

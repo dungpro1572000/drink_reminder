@@ -3,9 +3,12 @@ package com.dungz.drinkreminder.di
 import android.content.Context
 import androidx.room.Room
 import com.dungz.drinkreminder.data.datastore.DataStoreManagement
+import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.data.repository.AppRepositoryImpl
 import com.dungz.drinkreminder.data.roomdb.AppDatabase
 import com.dungz.drinkreminder.data.roomdb.dao.ExerciseDao
 import com.dungz.drinkreminder.data.roomdb.dao.EyesDao
+import com.dungz.drinkreminder.data.roomdb.dao.RecordCompleteDao
 import com.dungz.drinkreminder.data.roomdb.dao.WorkingTimeDao
 import dagger.Module
 import dagger.Provides
@@ -40,4 +43,12 @@ object AppModule {
 
     @Provides
     fun provideWorkingTimeDao(db: AppDatabase): WorkingTimeDao = db.workingTimeDao()
+
+    @Provides
+    fun provideRecordCompleteDao(db: AppDatabase): RecordCompleteDao = db.recordCompleteDao()
+
+    @Provides
+    fun provideAppRepository(db: AppDatabase): AppRepository {
+        return AppRepositoryImpl(db)
+    }
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dungz.drinkreminder.ui.theme.TextInPrimaryButton
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
+import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
 import com.dungz.drinkreminder.ui.theme.normalTextColor
 import com.dungz.drinkreminder.ui.theme.whiteColor
 
@@ -22,7 +23,7 @@ fun OnlyClickButton(
     Button(
         modifier = modifier,
         onClick = onClick, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(
-            contentColor = normalTextColor, containerColor = whiteColor
+            contentColor = normalTextColor, containerColor = blueBackgroundColor
         )
     ) {
         Text(text, style = TitleTextStyle)

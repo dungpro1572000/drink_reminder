@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.dungz.drinkreminder.activity.MainActivityViewModel
 import com.dungz.drinkreminder.navigation.Screen
 import com.dungz.drinkreminder.ui.main.home.HomeScreen
+import com.dungz.drinkreminder.ui.main.setuptime.SetupTimeScreen
 
 @Composable
 fun MainScreen(viewModel: MainActivityViewModel) {
@@ -29,10 +30,15 @@ fun MainScreen(viewModel: MainActivityViewModel) {
             startDestination = Screen.Home.route
         ) {
             composable(route = Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(navigateToPage = {
+                    bottomBarHost.navigate(Screen.Setup.route)
+                })
             }
             composable(route = Screen.Analyze.route) { }
             composable(route = Screen.Setting.route) { }
+            composable(route = Screen.Setup.route) {
+                SetupTimeScreen()
+            }
         }
     }
 }

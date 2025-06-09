@@ -8,4 +8,7 @@
     <string name="onboarding_content_2">Quick and easy to set your hydration goal, then track your daily water intake progress.</string>
     <string name="onboarding_title_3">Easy to Use – Drink, Tap, Repeat</string>
     <string name="onboarding_content_3">Staying hydrated every day is easy with Drops Water Tracker.</string>
+    <string name="drink_incoming">Time to drink water!</string>
+    <string name="exercise_incoming">Get up and move!</string>
+    <string name="eye_incoming">Take an eye break!</string>
 </resources>
