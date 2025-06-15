@@ -66,7 +66,28 @@ fun convertHourMinuteToDate(hour: Int, minute: Int): Date {
     return calendar.time
 }
 
-fun convertStringTimeToDate(time: String): Date {
+fun String.convertStringTimeToDate(): Date {
     val format = SimpleDateFormat("HH:mm", Locale.US)
-    return format.parse(time)
+    return format.parse(this)
+}
+
+fun String.convertTimeStringToInts(): Pair<Int, Int> {
+    val parts = this.split(":")
+    if (parts.size == 2) {
+        try {
+            val hour = parts[0].toInt()
+            val minute = parts[1].toInt()
+            return Pair(hour, minute)
+        } catch (e: NumberFormatException) {
+            // Handle cases where conversion to Int fails (e.g., "ab:cd")
+            return 0 to 0
+        }
+    }
+    // Handle invalid time string format
+    return 0 to 0
+}
+
+fun Date.formatToString(): String {
+    val format = SimpleDateFormat("HH:mm", Locale.US)
+    return format.format(this)
 }

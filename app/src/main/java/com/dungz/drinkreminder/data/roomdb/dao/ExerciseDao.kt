@@ -14,5 +14,5 @@ interface ExerciseDao {
     suspend fun insert(exerciseEntity: ExerciseEntity)
 
     @Query("Select * from Exercise order by id limit 1")
-    fun getAllExercise(): Flow<ExerciseEntity>
+    fun getAllExercise(): Flow<ExerciseEntity?>
 }

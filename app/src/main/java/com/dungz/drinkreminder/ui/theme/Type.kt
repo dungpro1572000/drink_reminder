@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.sp
 
 val BoldTitleTextStyle = TextStyle(
     color = normalTextColor,
-    fontSize = 20.sp,
+    fontSize = 24.sp,
     fontWeight = FontWeight.SemiBold,
 )
 

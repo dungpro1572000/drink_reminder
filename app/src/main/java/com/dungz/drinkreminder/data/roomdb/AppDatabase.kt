@@ -18,11 +18,8 @@ import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 
 @Database(
     entities = [EyesEntity::class, ExerciseEntity::class, WorkingTime::class, RecordCompleteEntity::class, DrinkWaterEntity::class],
-    version = 2,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2)
-    ]
-
+    version = 1,
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

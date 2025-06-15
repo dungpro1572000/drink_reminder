@@ -44,7 +44,7 @@ fun AppNav(modifier: Modifier = Modifier, viewModel: MainActivityViewModel = vie
     val scope = rememberCoroutineScope()
     NavHost(
         modifier = modifier,
-        navController = navController, startDestination = Splash.route
+        navController = navController, startDestination = Main.route
     ) {
         composable(route = Splash.route) {
             OnboardingScreen(viewModel) {

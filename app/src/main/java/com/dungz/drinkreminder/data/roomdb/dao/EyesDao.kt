@@ -13,5 +13,5 @@ interface EyesDao {
     suspend fun insert(eyes: EyesEntity)
 
     @Query("Select * from Eyes order by id limit 1")
-    fun getAllEyes(): Flow<EyesEntity>
+    fun getAllEyes(): Flow<EyesEntity?>
 }

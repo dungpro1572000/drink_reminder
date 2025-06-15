@@ -13,5 +13,5 @@ interface WorkingTimeDao {
     suspend fun insertWorkingTime(workingTime: WorkingTime)
 
     @Query("select * from workingtime order by id limit 1")
-    fun getWorkingTime(): Flow<WorkingTime>
+    fun getWorkingTime(): Flow<WorkingTime?>
 }

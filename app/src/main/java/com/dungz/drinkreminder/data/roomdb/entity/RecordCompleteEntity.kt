@@ -7,5 +7,11 @@ import androidx.room.PrimaryKey
 data class RecordCompleteEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String, val drinkTime: Int, val eyesRelaxTime: Int, val exerciseTime: Int,
+    val date: String,
+    val drinkTime: Int,
+    val eyesRelaxTime: Int,
+    val exerciseTime: Int,
+    val totalDrinkTime: Int,
+    val totalEyesRelaxTime: Int,
+    val totalExerciseTime: Int,
 )

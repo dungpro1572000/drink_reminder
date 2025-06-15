@@ -53,7 +53,10 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 date = recordCompleteModel.date,
                 drinkTime = recordCompleteModel.drinkTime,
                 eyesRelaxTime = recordCompleteModel.eyesRelaxTime,
-                exerciseTime = recordCompleteModel.exerciseTime
+                exerciseTime = recordCompleteModel.exerciseTime,
+                totalDrinkTime = recordCompleteModel.totalDrinkTime,
+                totalEyesRelaxTime = recordCompleteModel.totalEyesRelaxTime,
+                totalExerciseTime = recordCompleteModel.totalExerciseTime,
             )
         )
     }
@@ -70,16 +73,56 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         )
     }
 
-    override fun getDrinkWaterInfo(): Flow<DrinkWaterEntity> {
-        return appDb.drinkDao().getDrinkInfo()
+    override fun getRecordComplete(): Flow<List<RecordCompleteModel>> {
+        return appDb.recordCompleteDao().getRecordCompleteData().map { data ->
+            data?.map { recordCompleteEntity ->
+                RecordCompleteModel(
+                    date = recordCompleteEntity.date,
+                    drinkTime = recordCompleteEntity.drinkTime,
+                    eyesRelaxTime = recordCompleteEntity.eyesRelaxTime,
+                    exerciseTime = recordCompleteEntity.exerciseTime,
+                    totalDrinkTime = recordCompleteEntity.totalDrinkTime,
+                    totalEyesRelaxTime = recordCompleteEntity.totalEyesRelaxTime,
+                    totalExerciseTime = recordCompleteEntity.totalExerciseTime
+                )
+            } ?: emptyList()
+        }
     }
 
-    override fun getExerciseInfo(): Flow<ExerciseEntity> {
-        return appDb.exerciseDao().getAllExercise()
+    override fun getDrinkWaterInfo(): Flow<DrinkWaterModel?> {
+        return appDb.drinkDao().getDrinkInfo().map {
+            it?.let { drinkWaterEntity ->
+                DrinkWaterModel(
+                    isNotificationOn = drinkWaterEntity.isNotificationOn,
+                    durationNotification = drinkWaterEntity.durationNotification,
+                    nextNotificationTime = drinkWaterEntity.nextNotificationTime
+                )
+            }
+        }
     }
 
-    override fun getEyesInfo(): Flow<EyesEntity> {
-        return appDb.eyesDao().getAllEyes()
+    override fun getExerciseInfo(): Flow<ExerciseModel?> {
+        return appDb.exerciseDao().getAllExercise().map {
+            it?.let { exerciseEntity ->
+                ExerciseModel(
+                    isNotificationOn = exerciseEntity.isNotificationOn,
+                    durationNotification = exerciseEntity.durationNotification,
+                    nextNotificationTime = exerciseEntity.nextNotificationTime
+                )
+            }
+        }
+    }
+
+    override fun getEyesInfo(): Flow<EyesMode?> {
+        return appDb.eyesDao().getAllEyes().map {
+            it?.let { eyesEntity ->
+                EyesMode(
+                    isNotificationOn = eyesEntity.isNotificationOn,
+                    durationNotification = eyesEntity.durationNotification,
+                    nextNotificationTime = eyesEntity.nextNotificationTime,
+                )
+            }
+        }
     }
 
     override fun getDrinkCount(): Flow<Int> {
@@ -101,38 +144,46 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getMorningStartTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            convertStringTimeToDate(it.morningStartTime)
+            it?.morningStartTime?.convertStringTimeToDate() ?: Date().apply {
+                time = 0 // Default to epoch if no time is set
+            }
         }
     }
 
     override fun getMorningEndTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            convertStringTimeToDate(it.morningEndTime)
+            it?.morningEndTime?.convertStringTimeToDate() ?: Date().apply {
+                time = 0 // Default to epoch if no time is set
+            }
         }
     }
 
     override fun getAfternoonStartTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            convertStringTimeToDate(it.afternoonStartTime)
+            it?.afternoonStartTime?.convertStringTimeToDate() ?: Date().apply {
+                time = 0 // Default to epoch if no time is set
+            }
         }
     }
 
     override fun getAfternoonEndTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            convertStringTimeToDate(it.afternoonEndTime)
+            it?.afternoonEndTime?.convertStringTimeToDate() ?: Date().apply {
+                time = 0 // Default to epoch if no time is set
+            }
         }
     }
 
     override fun getRepeatDay(): Flow<List<Int>> {
         return appDb.workingTimeDao().getWorkingTime().map {
-            it.repeatDay
+            it?.repeatDay ?: emptyList()
         }
     }
 
-    override fun getWorkingTime(): Flow<WorkingTimeModel> {
+    override fun getWorkingTime(): Flow<WorkingTime?> {
         return appDb.workingTimeDao().getWorkingTime()
     }
 }

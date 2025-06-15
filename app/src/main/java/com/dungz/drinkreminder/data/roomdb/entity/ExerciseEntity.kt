@@ -7,6 +7,12 @@ import androidx.room.PrimaryKey
 data class ExerciseEntity(
     @PrimaryKey
     val id:Int = 0,
+    val nextNotificationTime: String = "09:00",
     val isNotificationOn : Boolean = false,
+    // Duration in minutes
     val durationNotification: Int = 55
-)
+) {
+    companion object{
+        val listDuration = listOf<Int>(60, 65, 75)
+    }
+}

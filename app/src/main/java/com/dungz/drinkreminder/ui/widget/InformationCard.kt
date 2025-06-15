@@ -10,16 +10,21 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -41,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import com.dungz.drinkreminder.R
 import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
+import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
+import com.dungz.drinkreminder.ui.theme.borderColor
 import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.utilities.countdownFlow
 import java.time.LocalTime
@@ -59,8 +66,8 @@ fun InformationCard(
     onTimeEnd: () -> Unit,
     startHour: Int,
     startMinute: Int,
-    rightComponent: @Composable () -> Unit = {},
-    inCardButton: @Composable () -> Unit = {},
+    icon: @Composable () -> Unit = {},
+    buttonInCardClicked: () -> Unit = {},
 ) {
     val invokeTime = LocalTime.of(startHour, startMinute)
     val timeLeft = countdownFlow(startHour, startMinute).collectAsState(initial = 0)
@@ -68,49 +75,62 @@ fun InformationCard(
     if (timeLeft.value == 0) {
         onTimeEnd.invoke()
     }
-    Card(modifier = Modifier.clickable {
-        onCardClick.invoke()
-    }, shape = RoundedCornerShape(15.dp)) {
-        Box(modifier = modifier) {
-            Box(Modifier.align(Alignment.BottomCenter)) {
-                when (type) {
-                    InformationCardType.DRINK -> WaterBackgroundWithBetterWaves()
-                    InformationCardType.RELAX_EYES -> GlowingGradientBackground()
-                    InformationCardType.EXERCISE -> AnimatedHeartbeat()
+    Card(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 12.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = blueBackgroundColor
+        ),
+        modifier = modifier
+            .height(148.dp)
+            .fillMaxWidth()
+            .clickable {
+                onCardClick.invoke()
+            }
+            .border(0.75.dp, color = borderColor, shape = RoundedCornerShape(15.dp)),
+        shape = RoundedCornerShape(15.dp)
+    ) {
+        Column {
+
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(start = 6.dp, top = 12.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                icon()
+                Column(
+                    Modifier
+                        .padding(start = 24.dp, top = 12.dp)
+                ) {
+                    Text(
+                        text =
+                            when (type) {
+                                InformationCardType.DRINK -> stringResource(R.string.drink_incoming)
+                                InformationCardType.EXERCISE -> stringResource(R.string.exercise_incoming)
+                                InformationCardType.RELAX_EYES -> stringResource(R.string.eye_incoming)
+                            }, style = TitleTextStyle
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text("In coming $invokeTime", style = TitleTextStyle)
+                    Spacer(Modifier.height(8.dp))
+                    Text("${timeLeft.value}", style = NormalTextStyle)
                 }
             }
-
             Box(
                 Modifier
-                    .align(Alignment.CenterEnd)
+                    .padding(bottom = 12.dp, end = 12.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                rightComponent.invoke()
-            }
-            Column(
-                Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 24.dp, top = 12.dp)
-            ) {
-                Text(
-                    text =
-                        when (type) {
-                            InformationCardType.DRINK -> stringResource(R.string.drink_incoming)
-                            InformationCardType.EXERCISE -> stringResource(R.string.exercise_incoming)
-                            InformationCardType.RELAX_EYES -> stringResource(R.string.eye_incoming)
-                        }, style = TitleTextStyle
+                OnlyClickButton(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    text = "Check this",
+                    onClick = buttonInCardClicked,
                 )
-                Spacer(Modifier.height(8.dp))
-                Text("In coming $invokeTime", style = TitleTextStyle)
-                Spacer(Modifier.height(8.dp))
-                Text("${timeLeft.value}", style = NormalTextStyle)
-            }
-
-            Box(
-                Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 24.dp, bottom = 24.dp)
-            ) {
-                inCardButton.invoke()
             }
         }
     }
@@ -277,6 +297,11 @@ fun AnimatedHeartbeat(
 @Composable
 fun tess() {
 //    InformationCard(Modifier.height(160.dp), {}, startMinute = 20, startHour = 16, onTimeEnd = {})
-    AnimatedHeartbeat()
+    InformationCard(
+        type = InformationCardType.DRINK,
+        onTimeEnd = { },
+        startHour = 1,
+        startMinute = 1
+    )
 
 }

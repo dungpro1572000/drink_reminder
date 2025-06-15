@@ -13,5 +13,5 @@ interface DrinkDao {
     suspend fun insertDrinkWater(drinkWater: DrinkWaterEntity)
 
     @Query("select * from DrinkWater order by id limit 1")
-    fun getDrinkInfo(): Flow<DrinkWaterEntity>
+    fun getDrinkInfo(): Flow<DrinkWaterEntity?>
 }

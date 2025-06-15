@@ -25,5 +25,5 @@ interface RecordCompleteDao {
     fun getCountDays(): Flow<Int>
 
     @Query("select * from RecordComplete")
-    fun getRecordCompleteData(): Flow<RecordCompleteEntity>
+    fun getRecordCompleteData(): Flow<List<RecordCompleteEntity>?>
 }
