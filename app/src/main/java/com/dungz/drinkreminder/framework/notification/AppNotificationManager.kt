@@ -8,8 +8,10 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dungz.drinkreminder.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class AppNotificationManager(context: Context) {
+class AppNotificationManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     init {
         createNotificationChannel(context)
@@ -28,7 +30,7 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun showNotification(context: Context,  notificationData: NotificationData) {
+    fun showNotification(context: Context, notificationData: NotificationData) {
         val notificationBuilder = NotificationCompat.Builder(context, "reminder_channel")
             .setSmallIcon(R.drawable.water_drop) // đảm bảo bạn có icon này
             .setContentTitle(notificationData.title)

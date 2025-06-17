@@ -10,6 +10,8 @@ import com.dungz.drinkreminder.data.roomdb.dao.ExerciseDao
 import com.dungz.drinkreminder.data.roomdb.dao.EyesDao
 import com.dungz.drinkreminder.data.roomdb.dao.RecordCompleteDao
 import com.dungz.drinkreminder.data.roomdb.dao.WorkingTimeDao
+import com.dungz.drinkreminder.framework.notification.AppNotificationManager
+import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,5 +52,17 @@ object AppModule {
     @Provides
     fun provideAppRepository(db: AppDatabase): AppRepository {
         return AppRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmScheduler(@ApplicationContext context: Context): AlarmScheduler {
+        return AlarmScheduler(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationManager(@ApplicationContext context: Context): AppNotificationManager {
+        return AppNotificationManager(context)
     }
 }

@@ -13,7 +13,6 @@ import javax.inject.Inject
 
 class AlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val appRepository: AppRepository
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -47,16 +46,21 @@ class AlarmScheduler @Inject constructor(
         val pendingIntent =
             PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_MUTABLE)
 
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, dateTime.hours)
-        calendar.set(Calendar.MINUTE, dateTime.minutes)
-
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, dateTime.hours)
+            set(Calendar.MINUTE, dateTime.minutes)
+            if (timeInMillis <= System.currentTimeMillis()) {
+                // If the time is in the past, set it to the next day
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
+        }
         // Set the alarm to trigger at the specified time
-        alarmManager.setExact(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            pendingIntent
-        )
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
     }
 }
 
