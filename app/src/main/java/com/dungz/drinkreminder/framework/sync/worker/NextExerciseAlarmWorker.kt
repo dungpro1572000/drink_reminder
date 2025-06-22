@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
@@ -13,6 +15,8 @@ import com.dungz.drinkreminder.utilities.formatToString
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextExerciseAlarmWorker @AssistedInject constructor(
@@ -32,7 +36,10 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
         val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
-        if (nextExerciseTime.before(afternoonEndTime)) {
+        val workingDay = workingTime.repeatDay
+
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        if (nextExerciseTime.before(afternoonEndTime) && workingDay.contains(today)) {
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(
                     nextNotificationTime = nextExerciseTime.formatToString()
@@ -53,13 +60,19 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
                     nextNotificationTime = newDayTime.formatToString()
                 )
             )
-            alarmScheduler.setupAlarmDate(newDayTime, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(AppConstant.EXERCISE_BUNDLE_ID, AppConstant.ID_EXERCISE)
-            }, AppConstant.ID_EXERCISE)
+            val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java)
+                .setInitialDelay(4, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(appContext).enqueue(worker)
+
             return Result.success()
         }
         return Result.failure()
+    }
+
+    companion object {
+        val worker = OneTimeWorkRequest.Builder(NextExerciseAlarmWorker::class.java)
+            .build()
     }
 }

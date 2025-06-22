@@ -1,14 +1,17 @@
 package com.dungz.drinkreminder.ui.main.setuptime
 
-import android.app.TimePickerDialog
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +22,8 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -36,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,16 +52,19 @@ import com.dungz.drinkreminder.data.roomdb.entity.EyesEntity
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
 import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
 import com.dungz.drinkreminder.ui.theme.borderColor
-import com.dungz.drinkreminder.ui.theme.primaryButtonColor
 import com.dungz.drinkreminder.ui.theme.primaryColor
+import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.Line
+import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertToDay
+import com.dungz.drinkreminder.utilities.formatToString
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewModel>()) {
-    val setUpTimeState = viewModel.state
-    val showDialog = rememberSaveable { mutableStateOf(false) }
+    val setUpTimeState = viewModel.setupTimeState
+    val showTimeDialog = rememberSaveable { mutableStateOf(false) }
     val showMenusEyes = rememberSaveable { mutableStateOf(false) }
     val showMenusDrink = rememberSaveable { mutableStateOf(false) }
     val showMenusExercise = rememberSaveable { mutableStateOf(false) }
@@ -71,7 +80,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             title = {
-                Row (verticalAlignment = Alignment.CenterVertically){
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         modifier = Modifier
                             .padding(end = 8.dp)
@@ -82,10 +91,12 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                     )
                     Text("Setup Time", style = TitleTextStyle)
                 }
-            }, actions = {
+            },
+            actions = {
+
                 IconButton(
                     onClick = {
-//                        viewModel.saveSetupTime()
+                        viewModel.saveSetupTime()
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = primaryColor
@@ -96,6 +107,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         contentDescription = "Save Setup Time"
                     )
                 }
+
             },
         )
     }) { innerPadding ->
@@ -105,11 +117,11 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 .verticalScroll(rememberScrollState())
                 .background(blueBackgroundColor)
         ) {
-            if (showDialog.value) {
+            if (showTimeDialog.value) {
                 TimePickerDialog(
-                    onDismiss = { showDialog.value = false },
+                    onDismiss = { showTimeDialog.value = false },
                     onConfirm = {
-                        showDialog.value = false
+                        showTimeDialog.value = false
                         when (setupTimeType.value) {
                             SetupTimeType.MorningStart -> {
                                 setUpTimeState.value = setUpTimeState.value.copy(
@@ -170,8 +182,12 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    TextItem(title = "Start Time", value = setUpTimeState.value.morningTimerStart) {
-                        showDialog.value = true
+                    TextItem(
+                        title = "Start Time",
+                        value = setUpTimeState.value.morningTimerStart.convertStringTimeToDate()
+                            .formatToString()
+                    ) {
+                        showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningStart
                         timePickerState.hour =
                             setUpTimeState.value.morningTimerStart.substringBefore(":")
@@ -188,7 +204,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextItem(title = "End Time", value = setUpTimeState.value.morningTimerEnd) {
-                        showDialog.value = true
+                        showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningEnd
                         timePickerState.hour =
                             setUpTimeState.value.morningTimerEnd.substringBefore(":")
@@ -219,9 +235,10 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
 
                     TextItem(
                         title = "Start working time",
-                        value = setUpTimeState.value.afternoonTimerStart
+                        value = setUpTimeState.value.afternoonTimerStart.convertStringTimeToDate()
+                            .formatToString()
                     ) {
-                        showDialog.value = true
+                        showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.AfternoonStart
                         timePickerState.hour =
                             setUpTimeState.value.afternoonTimerStart.substringBefore(":")
@@ -239,9 +256,10 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 ) {
                     TextItem(
                         title = "End working time",
-                        value = setUpTimeState.value.afternoonTimerEnd
+                        value = setUpTimeState.value.afternoonTimerEnd.convertStringTimeToDate()
+                            .formatToString()
                     ) {
-                        showDialog.value = true
+                        showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.AfternoonEnd
                         timePickerState.hour =
                             setUpTimeState.value.afternoonTimerEnd.substringBefore(":")
@@ -453,6 +471,48 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         })
                 }
             }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp, horizontal = 16.dp)
+            ) {
+                Text("Repeat Days", style = TitleTextStyle, modifier = Modifier.padding(8.dp))
+                Spacer(Modifier.height(8.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    (1..7).forEach { index ->
+                        FilterChip(
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = whiteColor,
+                                selectedContainerColor = primaryColor, // Màu nền khi selected
+
+                                labelColor = Color.Black,
+                                selectedLabelColor = Color.Black
+                            ),
+                            selected = setUpTimeState.value.repeatDay.contains(index),
+                            onClick = {
+                                if (setUpTimeState.value.repeatDay.contains(index)) {
+                                    setUpTimeState.value = setUpTimeState.value.copy(
+                                        repeatDay = setUpTimeState.value.repeatDay - index
+                                    )
+                                } else {
+                                    setUpTimeState.value = setUpTimeState.value.copy(
+                                        repeatDay = setUpTimeState.value.repeatDay + index
+                                    )
+                                }
+
+                                Log.d(
+                                    "SetupTimeScreen",
+                                    "Selected days: ${setUpTimeState.value.repeatDay}"
+                                )
+                            },
+                            label = { Text(index.convertToDay()) },
+                        )
+                    }
+                }
+            }
+
         }
     }
 

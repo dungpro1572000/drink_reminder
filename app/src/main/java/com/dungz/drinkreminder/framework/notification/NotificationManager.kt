@@ -1,6 +1,5 @@
 package com.dungz.drinkreminder.framework.notification
 
-import android.R.id.message
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,7 +10,7 @@ import com.dungz.drinkreminder.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class AppNotificationManager @Inject constructor(@ApplicationContext private val context: Context) {
+class NotificationManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     init {
         createNotificationChannel(context)
@@ -32,7 +31,7 @@ class AppNotificationManager @Inject constructor(@ApplicationContext private val
     @SuppressLint("MissingPermission")
     fun showNotification(context: Context, notificationData: NotificationData) {
         val notificationBuilder = NotificationCompat.Builder(context, "reminder_channel")
-            .setSmallIcon(R.drawable.water_drop) // đảm bảo bạn có icon này
+            .setSmallIcon(notificationData.notificationIcon) // đảm bảo bạn có icon này
             .setContentTitle(notificationData.title)
             .setContentText(notificationData.message)
             .setPriority(NotificationCompat.PRIORITY_MAX)

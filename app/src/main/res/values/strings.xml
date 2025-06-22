@@ -11,4 +11,11 @@
     <string name="drink_incoming">Time to drink water!</string>
     <string name="exercise_incoming">Get up and move!</string>
     <string name="eye_incoming">Take an eye break!</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="sun">Sun</string>
 </resources>

@@ -15,6 +15,7 @@ import com.dungz.drinkreminder.utilities.formatToString
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -34,6 +35,9 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 return Result.failure()
             }
             val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
+            val workingDay = workingTime.repeatDay
+
+            val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
             val newDrinkTimer = drinkAlarm.nextNotificationTime.convertStringTimeToDate().apply {
                 time + drinkAlarm.durationNotification * 60 * 1000
@@ -46,7 +50,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
             }
 
             // Set up the alarms using the AlarmScheduler
-            if (newDrinkTimer.before(afternoonEndTime)) {
+            if (newDrinkTimer.before(afternoonEndTime) && workingDay.contains(today)) {
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(
                         nextNotificationTime = newDrinkTimer.formatToString()
@@ -64,9 +68,11 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                         nextNotificationTime = newDayTime.formatToString()
                     )
                 )
-                alarmScheduler.setupAlarmDate(newDayTime, intent.apply {
-                    putExtra(AppConstant.DRINK_WATER_BUNDLE_ID, AppConstant.ID_DRINK_WATER)
-                }, AppConstant.ID_DRINK_WATER)
+                val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java)
+                    .setInitialDelay(4, TimeUnit.HOURS)
+                    .build()
+
+                WorkManager.getInstance(appContext).enqueue(worker)
             }
 
             Result.success()
@@ -78,7 +84,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
 
     companion object {
         val worker = OneTimeWorkRequest.Builder(NextDrinkAlarmWorker::class.java).setInitialDelay(
-            2,
+            4,
             TimeUnit.HOURS
         ).build()
     }

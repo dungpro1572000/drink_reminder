@@ -1,6 +1,13 @@
 package com.dungz.drinkreminder.framework.notification
 
-data class NotificationData(val title:String, val message:String, val channelId: Int) {
+import androidx.annotation.RawRes
+
+data class NotificationData(
+    val title: String,
+    val message: String,
+    val channelId: Int,
+    @RawRes val notificationIcon: Int
+) {
     companion object {
         const val CHANNEL_ID_DRINK_WATER = "drink_water_channel"
         const val CHANNEL_ID_EYES_RELAX = "eyes_relax_channel"

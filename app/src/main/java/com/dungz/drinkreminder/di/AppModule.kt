@@ -10,13 +10,14 @@ import com.dungz.drinkreminder.data.roomdb.dao.ExerciseDao
 import com.dungz.drinkreminder.data.roomdb.dao.EyesDao
 import com.dungz.drinkreminder.data.roomdb.dao.RecordCompleteDao
 import com.dungz.drinkreminder.data.roomdb.dao.WorkingTimeDao
-import com.dungz.drinkreminder.framework.notification.AppNotificationManager
+import com.dungz.drinkreminder.framework.notification.NotificationManager
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 @Module
@@ -56,13 +57,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAlarmScheduler(@ApplicationContext context: Context): AlarmScheduler {
-        return AlarmScheduler(context)
+    fun provideAlarmScheduler(
+        @ApplicationContext context: Context,
+        appRepository: AppRepository,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): AlarmScheduler {
+        return AlarmScheduler(
+            context = context, appRepository = appRepository,
+            ioDispatcher = ioDispatcher
+        )
     }
 
     @Provides
     @Singleton
-    fun provideNotificationManager(@ApplicationContext context: Context): AppNotificationManager {
-        return AppNotificationManager(context)
+    fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager {
+        return NotificationManager(context)
     }
 }

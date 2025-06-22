@@ -5,18 +5,28 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.di.IoDispatcher
 import com.dungz.drinkreminder.utilities.AppConstant
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
 class AlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val appRepository: AppRepository,
+    @IoDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
+    private val supervisorJob = SupervisorJob()
+    private val scope = CoroutineScope(ioDispatcher + supervisorJob)
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun setupAlarmTimeMillis(
+    suspend fun setupAlarmTimeMillis(
         timeMillis: Long = 5000,
         intent: Intent,
         requestCode: Int = AppConstant.ID_EYES_RELAX
@@ -37,7 +47,7 @@ class AlarmScheduler @Inject constructor(
         )
     }
 
-    fun setupAlarmDate(
+    suspend fun setupAlarmDate(
         dateTime: Date,
         intent: Intent,
         requestCode: Int = AppConstant.ID_EYES_RELAX
@@ -56,11 +66,11 @@ class AlarmScheduler @Inject constructor(
             }
         }
         // Set the alarm to trigger at the specified time
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
+        alarmManager.setExact(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent
+        )
     }
 }
 

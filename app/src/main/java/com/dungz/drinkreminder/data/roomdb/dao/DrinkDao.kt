@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DrinkDao {
 
-    @Insert
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
     suspend fun insertDrinkWater(drinkWater: DrinkWaterEntity)
 
     @Query("select * from DrinkWater order by id limit 1")

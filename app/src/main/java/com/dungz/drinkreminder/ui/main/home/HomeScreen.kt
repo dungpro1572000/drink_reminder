@@ -73,7 +73,7 @@ fun HomeScreen(
             onDismissRequest = { showBottomSheetState.value = false },
             sheetState = bottomSheetState,
         ) {
-            Box(modifier = Modifier.padding(bottom = 48.dp, start = 12.dp)) {
+            Box(modifier = Modifier.padding( start = 12.dp)) {
                 Image(
                     painter = painterResource(R.drawable.icon_confetti),
                     contentDescription = null,

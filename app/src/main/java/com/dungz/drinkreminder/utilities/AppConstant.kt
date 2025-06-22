@@ -17,6 +17,8 @@ object AppConstant {
     const val EYES_RELAX_BUNDLE_ID = "eyes_relax_channel"
     const val EXERCISE_BUNDLE_ID = "exercise_channel"
 
+    const val ALARM_BUNDLE_ID = "alarm_bundle_id"
+
     const val ALARM_ACTION_RECEIVER = "com.dungz.drinkreminder.framework.receiver"
     const val packageName = "com.dungz.drinkreminder"
 }
