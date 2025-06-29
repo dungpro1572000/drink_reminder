@@ -33,7 +33,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             return Result.failure()
         }
         val nextExerciseTime = exerciseInfo.nextNotificationTime.convertStringTimeToDate().apply {
-            time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+            time = time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
         val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
         val workingDay = workingTime.repeatDay
@@ -53,7 +53,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             return Result.success()
         } else {
             val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
-                time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+                time = time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(

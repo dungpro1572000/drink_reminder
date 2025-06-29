@@ -1,9 +1,5 @@
 package com.dungz.drinkreminder.data.repository
 
-import com.dungz.drinkreminder.data.roomdb.entity.DrinkWaterEntity
-import com.dungz.drinkreminder.data.roomdb.entity.ExerciseEntity
-import com.dungz.drinkreminder.data.roomdb.entity.EyesEntity
-import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
@@ -32,6 +28,10 @@ interface AppRepository {
     fun getEyesRelaxCount(): Flow<Int>
     fun getExerciseCount(): Flow<Int>
     fun getAmountOfDay(): Flow<Int>
+
+    fun getDrinkNotificationStatus(): Flow<Boolean>
+    fun getExerciseNotificationStatus(): Flow<Boolean>
+    fun getEyesNotificationStatus(): Flow<Boolean>
 
     // Working time for schedule
     fun getMorningStartTime(): Flow<Date>

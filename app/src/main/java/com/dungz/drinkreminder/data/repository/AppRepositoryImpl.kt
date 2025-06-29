@@ -11,7 +11,6 @@ import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
 import com.dungz.drinkreminder.data.roomdb.model.EyesMode
 import com.dungz.drinkreminder.data.roomdb.model.RecordCompleteModel
 import com.dungz.drinkreminder.data.roomdb.model.WorkingTimeModel
-import com.dungz.drinkreminder.utilities.convertHourMinuteToDate
 import com.dungz.drinkreminder.utilities.convertStringTimeToDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,7 +23,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         appDb.drinkDao().insertDrinkWater(
             DrinkWaterEntity(
                 isNotificationOn = drinkWaterModel.isNotificationOn,
-                durationNotification = drinkWaterModel.durationNotification
+                durationNotification = drinkWaterModel.durationNotification,
+                nextNotificationTime = drinkWaterModel.nextNotificationTime
             )
         )
     }
@@ -33,7 +33,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         appDb.exerciseDao().insert(
             ExerciseEntity(
                 isNotificationOn = exerciseModel.isNotificationOn,
-                durationNotification = exerciseModel.durationNotification
+                durationNotification = exerciseModel.durationNotification,
+                nextNotificationTime = exerciseModel.nextNotificationTime
             )
         )
     }
@@ -42,7 +43,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         appDb.eyesDao().insert(
             EyesEntity(
                 isNotificationOn = eyesMode.isNotificationOn,
-                durationNotification = eyesMode.durationNotification
+                durationNotification = eyesMode.durationNotification,
+                nextNotificationTime = eyesMode.nextNotificationTime
             )
         )
     }
@@ -139,6 +141,24 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
 
     override fun getAmountOfDay(): Flow<Int> {
         return appDb.recordCompleteDao().getCountDays()
+    }
+
+    override fun getDrinkNotificationStatus(): Flow<Boolean> {
+        return appDb.drinkDao().getDrinkInfo().map {
+            it?.isNotificationOn ?: false
+        }
+    }
+
+    override fun getExerciseNotificationStatus(): Flow<Boolean> {
+        return appDb.exerciseDao().getAllExercise().map {
+            it?.isNotificationOn ?: false
+        }
+    }
+
+    override fun getEyesNotificationStatus(): Flow<Boolean> {
+        return appDb.eyesDao().getAllEyes().map {
+            it?.isNotificationOn ?: false
+        }
     }
 
     override fun getMorningStartTime(): Flow<Date> {

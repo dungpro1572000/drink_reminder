@@ -40,7 +40,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
             val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
             val newDrinkTimer = drinkAlarm.nextNotificationTime.convertStringTimeToDate().apply {
-                time + drinkAlarm.durationNotification * 60 * 1000
+                time = time + drinkAlarm.durationNotification * 60 * 1000
             }
 
 //            if (newDrinkTimer > workingTime.afternoonEndTime.toDa)
@@ -61,7 +61,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 }, AppConstant.ID_DRINK_WATER)
             } else {
                 val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
-                    time + drinkAlarm.durationNotification * 60 * 1000
+                    time = time + drinkAlarm.durationNotification * 60 * 1000
                 }
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(

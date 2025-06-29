@@ -2,6 +2,8 @@ package com.dungz.drinkreminder.utilities
 
 import android.icu.util.Calendar
 import androidx.annotation.IntegerRes
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePickerState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -25,6 +27,13 @@ fun convertHourMinuteToDate(hour: Int, minute: Int): Date {
     calendar.set(Calendar.HOUR_OF_DAY, hour)
     calendar.set(Calendar.MINUTE, minute)
     return calendar.time
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun formatTime(state: TimePickerState): String {
+    val hour = state.hour
+    val minute = state.minute
+    return String.format(Locale.US, "%02d:%02d", hour, minute)
 }
 
 fun String.convertStringTimeToDate(): Date {

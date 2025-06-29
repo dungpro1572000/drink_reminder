@@ -1,5 +1,6 @@
 package com.dungz.drinkreminder.ui.main.home
 
+import android.R.attr.type
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -60,20 +62,25 @@ import com.dungz.drinkreminder.ui.widget.InformationCardType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel,
     navigateToPage: () -> Unit
 ) {
     val context = LocalContext.current
     val showBottomSheetState = rememberSaveable {
         mutableStateOf(true)
     }
+    val eyesRelaxFlow = viewModel.eyesRelaxFlow.collectAsState()
+    val drinkWaterFlow = viewModel.drinkWaterFlow.collectAsState()
+    val exerciseFlow = viewModel.exerciseFlow.collectAsState()
+    val workingTime = viewModel.workingTime.collectAsState()
+
     val bottomSheetState = rememberModalBottomSheetState()
     if (showBottomSheetState.value) {
-
         ModalBottomSheet(
             onDismissRequest = { showBottomSheetState.value = false },
             sheetState = bottomSheetState,
         ) {
-            Box(modifier = Modifier.padding( start = 12.dp)) {
+            Box(modifier = Modifier.padding(start = 12.dp)) {
                 Image(
                     painter = painterResource(R.drawable.icon_confetti),
                     contentDescription = null,
@@ -148,8 +155,7 @@ fun HomeScreen(
         }
         Spacer(Modifier.height(24.dp))
         InformationCard(
-            startHour = 16,
-            startMinute = 25,
+            startTime = exerciseFlow.value?.nextNotificationTime ?: "",
             onTimeEnd = {},
             buttonInCardClicked = {
                 showBottomSheetState.value = true
@@ -163,12 +169,10 @@ fun HomeScreen(
                     contentDescription = null
                 )
             },
-
-            )
+        )
         Spacer(Modifier.height(12.dp))
         InformationCard(
-            startHour = 16,
-            startMinute = 25,
+            startTime = drinkWaterFlow.value?.nextNotificationTime ?: "",
             onTimeEnd = {},
             buttonInCardClicked = {
                 showBottomSheetState.value = true
@@ -185,8 +189,7 @@ fun HomeScreen(
         )
         Spacer(Modifier.height(12.dp))
         InformationCard(
-            startHour = 16,
-            startMinute = 25,
+            startTime = eyesRelaxFlow.value?.nextNotificationTime ?: "",
             onTimeEnd = {},
             type = InformationCardType.RELAX_EYES,
             buttonInCardClicked = {
@@ -216,10 +219,4 @@ fun HomeScreen(
             style = InstructionTextStyle
         )
     }
-}
-
-@Preview
-@Composable
-fun testHome() {
-    HomeScreen({})
 }

@@ -32,7 +32,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             return Result.failure()
         }
         val nextEyesRelaxTime = eyesRelaxInfo.nextNotificationTime.convertStringTimeToDate().apply {
-            time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+            time = time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
         val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
         val workingDay = workingTime.repeatDay
@@ -54,7 +54,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
 
             // set workManager for next day
             val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
-                time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+                time = time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(

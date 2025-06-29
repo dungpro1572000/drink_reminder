@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +30,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -36,7 +41,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,32 +53,43 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.dungz.drinkreminder.R
 import com.dungz.drinkreminder.data.roomdb.entity.DrinkWaterEntity
 import com.dungz.drinkreminder.data.roomdb.entity.ExerciseEntity
 import com.dungz.drinkreminder.data.roomdb.entity.EyesEntity
+import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
 import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
 import com.dungz.drinkreminder.ui.theme.borderColor
+import com.dungz.drinkreminder.ui.theme.primaryButtonColor
 import com.dungz.drinkreminder.ui.theme.primaryColor
 import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.Line
 import com.dungz.drinkreminder.utilities.convertStringTimeToDate
 import com.dungz.drinkreminder.utilities.convertToDay
+import com.dungz.drinkreminder.utilities.formatTime
 import com.dungz.drinkreminder.utilities.formatToString
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewModel>()) {
-    val setUpTimeState = viewModel.setupTimeState
+fun SetupTimeScreen(
+    viewModel: SetupTimeViewModel, navigateBack: () -> Unit = {}
+) {
+    val setUpTimeState = viewModel.uiState.collectAsState()
     val showTimeDialog = rememberSaveable { mutableStateOf(false) }
     val showMenusEyes = rememberSaveable { mutableStateOf(false) }
     val showMenusDrink = rememberSaveable { mutableStateOf(false) }
     val showMenusExercise = rememberSaveable { mutableStateOf(false) }
+    val showSavedSuccess = rememberSaveable { mutableStateOf(false) }
+    val snackBarState = remember { SnackbarHostState() }
     val setupTimeType = rememberSaveable { mutableStateOf(SetupTimeType.MorningStart) }
     val currentTime = Calendar.getInstance()
+    val coroutineScope = rememberCoroutineScope()
 
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
@@ -77,40 +97,125 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
         is24Hour = true,
     )
 
-    Scaffold(topBar = {
-        CenterAlignedTopAppBar(
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .size(24.dp),
-                        painter = painterResource(R.drawable.icon_setting),
-                        tint = primaryColor,
-                        contentDescription = null
-                    )
-                    Text("Setup Time", style = TitleTextStyle)
-                }
-            },
-            actions = {
+    if (showSavedSuccess.value) {
+        Dialog(
+            onDismissRequest = { showSavedSuccess.value = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                showSavedSuccess.value = false
+                navigateBack.invoke()
+            }
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    painterResource(R.drawable.icon_done),
+                    contentDescription = "",
+                    Modifier.size(58.dp)
+                )
+                Spacer(Modifier.height(8.dp))
+                Text("Success", style = NormalTextStyle)
+            }
+        }
+    }
 
-                IconButton(
-                    onClick = {
-                        viewModel.saveSetupTime()
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = primaryColor
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.icon_done),
-                        contentDescription = "Save Setup Time"
-                    )
-                }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackBarState, snackbar = { data ->
+                Snackbar(
+                    containerColor = primaryButtonColor,
+                    contentColor = Color.White,
+                    snackbarData = data
+                )
+            })
+        },
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .size(24.dp),
+                            painter = painterResource(R.drawable.icon_setting),
+                            tint = primaryColor,
+                            contentDescription = null
+                        )
+                        Text("Setup Time", style = TitleTextStyle)
+                    }
+                },
+                actions = {
+                    if (setUpTimeState.value != viewModel.originalSetupTimeState) {
+                        Log.d(
+                            "DungNT3544",
+                            "Setup time has changed, showing save button ${setUpTimeState != viewModel.originalSetupTimeState} \n ${setUpTimeState.value} \n ${viewModel.originalSetupTimeState}"
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        val startMorningTime =
+                                            setUpTimeState.value.morningTimerStart.convertStringTimeToDate()
+                                        val endMorningTime =
+                                            setUpTimeState.value.morningTimerEnd.convertStringTimeToDate()
+                                        val afternoonStartTime =
+                                            setUpTimeState.value.afternoonTimerStart.convertStringTimeToDate()
+                                        val afternoonEndTime =
+                                            setUpTimeState.value.afternoonTimerEnd.convertStringTimeToDate()
 
-            },
-        )
-    }) { innerPadding ->
+                                        if (endMorningTime.before(startMorningTime) || afternoonStartTime.before(
+                                                endMorningTime
+                                            ) || afternoonEndTime.before(afternoonStartTime)
+                                        ) {
+                                            Log.d(
+                                                "DungNT354",
+                                                "${endMorningTime.before(startMorningTime)} and ${
+                                                    afternoonStartTime.before(
+                                                        endMorningTime
+                                                    )
+                                                } and ${afternoonEndTime.before(afternoonStartTime)}"
+                                            )
+                                            coroutineScope.launch {
+                                                snackBarState.showSnackbar(
+                                                    message = "Please check your time setup again",
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        } else {
+                                            viewModel.saveSetupTime()
+                                            delay(300)
+                                            showSavedSuccess.value = true
+                                        }
+                                    }
+                                }, colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = primaryColor
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.icon_done),
+                                    contentDescription = "Save Setup Time"
+                                )
+                            }
+
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                "Reset",
+                                style = NormalTextStyle.copy(color = primaryColor),
+                                modifier = Modifier
+                                    .clickable {
+                                        viewModel.resetData()
+                                    }
+                                    .padding(8.dp))
+                        }
+                    }
+                },
+            )
+        }) { innerPadding ->
         Column(
             Modifier
                 .padding(innerPadding)
@@ -119,43 +224,28 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
         ) {
             if (showTimeDialog.value) {
                 TimePickerDialog(
-                    onDismiss = { showTimeDialog.value = false },
-                    onConfirm = {
+                    onDismiss = { showTimeDialog.value = false }, onConfirm = {
                         showTimeDialog.value = false
                         when (setupTimeType.value) {
                             SetupTimeType.MorningStart -> {
-                                setUpTimeState.value = setUpTimeState.value.copy(
-                                    morningTimerStart =
-                                        "${timePickerState.hour}:${timePickerState.minute}"
-                                )
+                                viewModel.updateMorningStartTime(formatTime(timePickerState))
                             }
 
                             SetupTimeType.MorningEnd -> {
-                                setUpTimeState.value = setUpTimeState.value.copy(
-                                    morningTimerEnd =
-                                        "${timePickerState.hour}:${timePickerState.minute}"
-                                )
+                                viewModel.updateMorningEndTime(formatTime(timePickerState))
                             }
 
                             SetupTimeType.AfternoonStart -> {
-                                setUpTimeState.value = setUpTimeState.value.copy(
-                                    afternoonTimerStart =
-                                        "${timePickerState.hour}:${timePickerState.minute}"
-                                )
+                                viewModel.updateAfternoonStartTime(formatTime(timePickerState))
                             }
 
                             SetupTimeType.AfternoonEnd -> {
-                                setUpTimeState.value = setUpTimeState.value.copy(
-                                    afternoonTimerEnd =
-                                        "${timePickerState.hour}:${timePickerState.minute}"
-                                )
+                                viewModel.updateAfternoonEndTime(formatTime(timePickerState))
                             }
                         }
-                    },
-                    content = {
+                    }, content = {
                         TimeInput(state = timePickerState)
-                    },
-                    type = setupTimeType.value
+                    }, type = setupTimeType.value
                 )
             }
 
@@ -163,17 +253,13 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp,
-                        color = borderColor,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
             ) {
                 Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "Morning Time",
-                    style = TitleTextStyle
+                    modifier = Modifier.padding(8.dp), text = "Morning Time", style = TitleTextStyle
                 )
                 Line(Modifier.padding(vertical = 6.dp))
                 Row(
@@ -190,11 +276,9 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningStart
                         timePickerState.hour =
-                            setUpTimeState.value.morningTimerStart.substringBefore(":")
-                                .toInt()
+                            setUpTimeState.value.morningTimerStart.substringBefore(":").toInt()
                         timePickerState.minute =
-                            setUpTimeState.value.morningTimerStart.substringAfter(":")
-                                .toInt()
+                            setUpTimeState.value.morningTimerStart.substringAfter(":").toInt()
                     }
                 }
                 Line(Modifier.padding(vertical = 6.dp))
@@ -203,12 +287,15 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    TextItem(title = "End Time", value = setUpTimeState.value.morningTimerEnd) {
+                    TextItem(
+                        title = "End Time",
+                        value = setUpTimeState.value.morningTimerEnd.convertStringTimeToDate()
+                            .formatToString()
+                    ) {
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningEnd
                         timePickerState.hour =
-                            setUpTimeState.value.morningTimerEnd.substringBefore(":")
-                                .toInt()
+                            setUpTimeState.value.morningTimerEnd.substringBefore(":").toInt()
                         timePickerState.minute =
                             setUpTimeState.value.morningTimerEnd.substringAfter(":").toInt()
                     }
@@ -218,9 +305,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp,
-                        color = borderColor,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -241,11 +326,9 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.AfternoonStart
                         timePickerState.hour =
-                            setUpTimeState.value.afternoonTimerStart.substringBefore(":")
-                                .toInt()
+                            setUpTimeState.value.afternoonTimerStart.substringBefore(":").toInt()
                         timePickerState.minute =
-                            setUpTimeState.value.afternoonTimerStart.substringAfter(":")
-                                .toInt()
+                            setUpTimeState.value.afternoonTimerStart.substringAfter(":").toInt()
                     }
                 }
                 Line(Modifier.padding(vertical = 6.dp))
@@ -262,11 +345,9 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.AfternoonEnd
                         timePickerState.hour =
-                            setUpTimeState.value.afternoonTimerEnd.substringBefore(":")
-                                .toInt()
+                            setUpTimeState.value.afternoonTimerEnd.substringBefore(":").toInt()
                         timePickerState.minute =
-                            setUpTimeState.value.afternoonTimerEnd.substringAfter(":")
-                                .toInt()
+                            setUpTimeState.value.afternoonTimerEnd.substringAfter(":").toInt()
                     }
                 }
             }
@@ -274,9 +355,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp,
-                        color = borderColor,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -312,11 +391,8 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                                         text = { Text("$duration minutes") },
                                         onClick = {
                                             showMenusEyes.value = false
-                                            setUpTimeState.value = setUpTimeState.value.copy(
-                                                eyesNotificationTime = duration
-                                            )
-                                        }
-                                    )
+                                            viewModel.updateEyesNotificationTime(duration)
+                                        })
                                 }
                             }
                         }
@@ -349,11 +425,8 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                                         text = { Text("$duration minutes") },
                                         onClick = {
                                             showMenusDrink.value = false
-                                            setUpTimeState.value = setUpTimeState.value.copy(
-                                                drinkWaterNotificationTime = duration
-                                            )
-                                        }
-                                    )
+                                            viewModel.updateDrinkWaterNotificationTime(duration)
+                                        })
                                 }
                             }
                         }
@@ -385,11 +458,8 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                                         text = { Text("$duration minutes") },
                                         onClick = {
                                             showMenusExercise.value = false
-                                            setUpTimeState.value = setUpTimeState.value.copy(
-                                                exerciseNotificationTime = duration
-                                            )
-                                        }
-                                    )
+                                            viewModel.updateExerciseNotificationTime(duration)
+                                        })
                                 }
                             }
                         }
@@ -401,17 +471,13 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp,
-                        color = borderColor,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
             ) {
                 Text(
-                    "Notification Status",
-                    style = TitleTextStyle,
-                    modifier = Modifier.padding(8.dp)
+                    "Notification Status", style = TitleTextStyle, modifier = Modifier.padding(8.dp)
                 )
                 Line(Modifier.padding(vertical = 6.dp))
                 Row(
@@ -426,9 +492,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         ),
                         checked = setUpTimeState.value.eyesNotificationStatus,
                         onCheckedChange = {
-                            setUpTimeState.value = setUpTimeState.value.copy(
-                                eyesNotificationStatus = it
-                            )
+                            viewModel.updateEyesNotificationStatus(it)
                         })
                 }
                 Line(Modifier.padding(vertical = 6.dp))
@@ -444,9 +508,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         ),
                         checked = setUpTimeState.value.drinkWaterNotificationStatus,
                         onCheckedChange = {
-                            setUpTimeState.value = setUpTimeState.value.copy(
-                                drinkWaterNotificationStatus = it
-                            )
+                            viewModel.updateDrinkWaterNotificationStatus(it)
                         })
                 }
                 Line(Modifier.padding(vertical = 6.dp))
@@ -456,8 +518,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        "Exercise Notification Status",
-                        style = MaterialTheme.typography.titleLarge
+                        "Exercise Notification Status", style = MaterialTheme.typography.titleLarge
                     )
                     Switch(
                         colors = SwitchDefaults.colors(
@@ -465,9 +526,7 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                         ),
                         checked = setUpTimeState.value.exerciseNotificationStatus,
                         onCheckedChange = {
-                            setUpTimeState.value = setUpTimeState.value.copy(
-                                exerciseNotificationStatus = it
-                            )
+                            viewModel.updateExerciseNotificationStatus(it)
                         })
                 }
             }
@@ -492,15 +551,12 @@ fun SetupTimeScreen(viewModel: SetupTimeViewModel = hiltViewModel<SetupTimeViewM
                             ),
                             selected = setUpTimeState.value.repeatDay.contains(index),
                             onClick = {
-                                if (setUpTimeState.value.repeatDay.contains(index)) {
-                                    setUpTimeState.value = setUpTimeState.value.copy(
-                                        repeatDay = setUpTimeState.value.repeatDay - index
-                                    )
+                                val newList = if (setUpTimeState.value.repeatDay.contains(index)) {
+                                    setUpTimeState.value.repeatDay - index
                                 } else {
-                                    setUpTimeState.value = setUpTimeState.value.copy(
-                                        repeatDay = setUpTimeState.value.repeatDay + index
-                                    )
+                                    setUpTimeState.value.repeatDay + index
                                 }
+                                viewModel.updateRepeatDay(newList)
 
                                 Log.d(
                                     "SetupTimeScreen",
@@ -539,8 +595,7 @@ fun TextItem(title: String, value: String, click: () -> Unit) {
                 .padding(8.dp)
                 .clickable {
                     click.invoke()
-                }
-        )
+                })
     }
 }
 
@@ -551,32 +606,23 @@ fun TimePickerDialog(
     content: @Composable () -> Unit,
     type: SetupTimeType
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("Dismiss")
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(type) }) {
-                Text("OK")
-            }
-        },
-        text = { content() }
-    )
+    AlertDialog(onDismissRequest = onDismiss, dismissButton = {
+        TextButton(onClick = { onDismiss() }) {
+            Text("Dismiss")
+        }
+    }, confirmButton = {
+        TextButton(onClick = { onConfirm(type) }) {
+            Text("OK")
+        }
+    }, text = { content() })
 }
 
 enum class SetupTimeType {
-    MorningStart,
-    MorningEnd,
-    AfternoonStart,
-    AfternoonEnd
+    MorningStart, MorningEnd, AfternoonStart, AfternoonEnd
 }
 
 sealed class BottomNavItem(
-    val route: String,
-    val title: String
+    val route: String, val title: String
 ) {
     object Eyes : BottomNavItem("eye", "Eyes")
     object Drink : BottomNavItem("drink", "Drink")

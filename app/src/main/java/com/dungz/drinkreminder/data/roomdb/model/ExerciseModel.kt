@@ -5,4 +5,5 @@ data class ExerciseModel(
     val isNotificationOn: Boolean = false,
     val durationNotification: Int = 55
 ) {
+
 }
