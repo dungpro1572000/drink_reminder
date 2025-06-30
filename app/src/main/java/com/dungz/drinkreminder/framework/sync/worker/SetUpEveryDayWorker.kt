@@ -1,14 +1,13 @@
 package com.dungz.drinkreminder.framework.sync.worker
 
 import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
-import com.dungz.drinkreminder.framework.receiver.AlarmReceiver
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.AppConstant.ID_DRINK_WATER
@@ -69,17 +68,20 @@ class SetUpEveryDayWorker @AssistedInject constructor(
             apiRepository.setExerciseInfo(dataExercise.copy(nextNotificationTime = nextExerciseTime.formatToString()))
             // Setup alarms
             alarmScheduler.setupAlarmDate(
-                dateTime = drinkTime, intent = Intent(appContext, AlarmReceiver::class.java).apply {
-                    action = AppConstant.ALARM_ACTION_RECEIVER
-
-
-                }, requestCode = ID_DRINK_WATER
+                dateTime = drinkTime, Bundle().apply {
+                    putInt(AppConstant.ALARM_BUNDLE_ID, ID_DRINK_WATER)
+                },
+                requestCode = ID_DRINK_WATER
             )
             alarmScheduler.setupAlarmDate(
-                dateTime = eyesRelaxTime, intent = Intent(), requestCode = ID_EYES_RELAX
+                dateTime = eyesRelaxTime, Bundle().apply {
+                    putInt(AppConstant.ALARM_BUNDLE_ID, ID_EYES_RELAX)
+                }, requestCode = ID_EYES_RELAX
             )
             alarmScheduler.setupAlarmDate(
-                dateTime = exerciseTime, intent = Intent(), requestCode = ID_EXERCISE
+                dateTime = exerciseTime, Bundle().apply {
+                    putInt(AppConstant.ALARM_BUNDLE_ID, ID_EXERCISE)
+                }, requestCode = ID_EXERCISE
             )
             Result.success()
         } catch (e: Exception) {

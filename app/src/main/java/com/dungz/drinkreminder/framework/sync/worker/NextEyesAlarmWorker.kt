@@ -1,7 +1,7 @@
 package com.dungz.drinkreminder.framework.sync.worker
 
 import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextEyesAlarmWorker @AssistedInject constructor(
-    @Assisted private val appContext: Context,
-    @Assisted private val workerParameters: WorkerParameters,
+    @Assisted val appContext: Context,
+    @Assisted val workerParameters: WorkerParameters,
     private val appRepository: AppRepository,
     private val alarmScheduler: AlarmScheduler,
 ) : CoroutineWorker(appContext, workerParameters) {
@@ -32,7 +32,8 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             return Result.failure()
         }
         val nextEyesRelaxTime = eyesRelaxInfo.nextNotificationTime.convertStringTimeToDate().apply {
-            time = time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+            time =
+                time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
         val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
         val workingDay = workingTime.repeatDay
@@ -45,16 +46,15 @@ class NextEyesAlarmWorker @AssistedInject constructor(
                     nextNotificationTime = nextEyesRelaxTime.formatToString()
                 )
             )
-            alarmScheduler.setupAlarmDate(nextEyesRelaxTime, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(AppConstant.EYES_RELAX_BUNDLE_ID, AppConstant.ID_EYES_RELAX)
+            alarmScheduler.setupAlarmDate(nextEyesRelaxTime, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EYES_RELAX)
             }, AppConstant.ID_EYES_RELAX)
         } else {
 
             // set workManager for next day
             val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
-                time = time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+                time =
+                    time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(

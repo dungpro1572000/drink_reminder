@@ -1,6 +1,6 @@
 package com.dungz.drinkreminder.ui.main.setuptime
 
-import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -174,13 +174,8 @@ class SetupTimeViewModel @Inject constructor(
             )
 
             appRepository.setEyeInfo(eyesData)
-            alarmScheduler.setupAlarmDate(nextEyesNotification, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(
-                    AppConstant.EYES_RELAX_BUNDLE_ID,
-                    AppConstant.ID_EYES_RELAX
-                )
+            alarmScheduler.setupAlarmDate(nextEyesNotification, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EYES_RELAX)
             }, AppConstant.ID_EYES_RELAX)
             Log.d(
                 "SetupTimeViewModel",
@@ -202,13 +197,8 @@ class SetupTimeViewModel @Inject constructor(
                 "Drink water next notification time: ${drinkData.nextNotificationTime}"
             )
             appRepository.setDrinkWaterInfo(drinkData)
-            alarmScheduler.setupAlarmDate(drinkNotificationTime, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(
-                    AppConstant.DRINK_WATER_BUNDLE_ID,
-                    AppConstant.ID_DRINK_WATER
-                )
+            alarmScheduler.setupAlarmDate(drinkNotificationTime, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_DRINK_WATER)
             }, AppConstant.ID_DRINK_WATER)
 
             val nextExerciseNotification =
@@ -222,13 +212,8 @@ class SetupTimeViewModel @Inject constructor(
                 nextNotificationTime = nextExerciseNotification.formatToString()
             )
             appRepository.setExerciseInfo(exerciseData)
-            alarmScheduler.setupAlarmDate(nextExerciseNotification, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(
-                    AppConstant.EXERCISE_BUNDLE_ID,
-                    AppConstant.ID_EXERCISE
-                )
+            alarmScheduler.setupAlarmDate(nextExerciseNotification, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EXERCISE)
             }, AppConstant.ID_EXERCISE)
             Log.d(
                 "SetupTimeViewModel",

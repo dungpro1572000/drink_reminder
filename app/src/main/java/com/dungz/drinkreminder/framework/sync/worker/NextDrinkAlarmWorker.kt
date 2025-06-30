@@ -2,11 +2,13 @@ package com.dungz.drinkreminder.framework.sync.worker
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.impl.utils.EnqueueRunnable.enqueue
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
@@ -20,8 +22,8 @@ import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextDrinkAlarmWorker @AssistedInject constructor(
-    @Assisted private val appContext: Context,
-    @Assisted private val workerParameters: WorkerParameters,
+    @Assisted val appContext: Context,
+    @Assisted val workerParameters: WorkerParameters,
     private val appRepository: AppRepository,
     private val alarmScheduler: AlarmScheduler,
 ) : CoroutineWorker(appContext, workerParameters) {
@@ -43,11 +45,6 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 time = time + drinkAlarm.durationNotification * 60 * 1000
             }
 
-//            if (newDrinkTimer > workingTime.afternoonEndTime.toDa)
-            val intent = Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-            }
 
             // Set up the alarms using the AlarmScheduler
             if (newDrinkTimer.before(afternoonEndTime) && workingDay.contains(today)) {
@@ -56,9 +53,12 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                         nextNotificationTime = newDrinkTimer.formatToString()
                     )
                 )
-                alarmScheduler.setupAlarmDate(newDrinkTimer, intent.apply {
-                    putExtra(AppConstant.DRINK_WATER_BUNDLE_ID, AppConstant.ID_DRINK_WATER)
-                }, AppConstant.ID_DRINK_WATER)
+                alarmScheduler.setupAlarmDate(
+                    newDrinkTimer,
+                    Bundle().apply {
+                        putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_DRINK_WATER)
+                    }, AppConstant.ID_DRINK_WATER
+                )
             } else {
                 val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
                     time = time + drinkAlarm.durationNotification * 60 * 1000
@@ -83,9 +83,6 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
     }
 
     companion object {
-        val worker = OneTimeWorkRequest.Builder(NextDrinkAlarmWorker::class.java).setInitialDelay(
-            4,
-            TimeUnit.HOURS
-        ).build()
+        val worker = OneTimeWorkRequest.Builder(NextDrinkAlarmWorker::class.java).build()
     }
 }

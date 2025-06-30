@@ -47,7 +47,6 @@ fun countdownFlow(
         val hour = duration / 60 / 60
         val minutes = (duration - hour * 60 * 60) / 60
         val seconds = duration - hour * 60 * 60 - minutes * 60
-        Log.d("DungNT354", " duration is : ${duration} minute is $minutes secondis :$seconds")
 
         val countdownText = String.format(Locale.US, "%02d:%02d:%02d", hour, minutes, seconds)
         emit(countdownText)

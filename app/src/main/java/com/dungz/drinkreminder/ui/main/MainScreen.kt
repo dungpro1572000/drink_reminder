@@ -42,9 +42,7 @@ fun MainScreen(viewModel: MainActivityViewModel) {
             composable(route = Screen.Analyze.route) { }
             composable(route = Screen.Setting.route) { }
             composable(route = Screen.Setup.route) {
-                val viewModel = hiltViewModel<SetupTimeViewModel>()
                 SetupTimeScreen(
-                    viewModel = viewModel,
                     navigateBack = { bottomBarHost.popBackStack() })
             }
         }

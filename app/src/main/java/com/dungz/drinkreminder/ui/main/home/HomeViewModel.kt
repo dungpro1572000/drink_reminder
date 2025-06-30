@@ -1,17 +1,23 @@
 package com.dungz.drinkreminder.ui.main.home
 
-import androidx.compose.runtime.mutableStateOf
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
+import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
+import com.dungz.drinkreminder.utilities.AppConstant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val appRepository: AppRepository) : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val appRepository: AppRepository,
+    private val alarmScheduler: AlarmScheduler
+) : ViewModel() {
     val workingTime = appRepository.getWorkingTime()
         .stateIn(
             viewModelScope, SharingStarted.Eagerly,
@@ -30,4 +36,12 @@ class HomeViewModel @Inject constructor(private val appRepository: AppRepository
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val exerciseFlow = appRepository.getExerciseInfo()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    fun setUpTime() {
+        viewModelScope.launch {
+            alarmScheduler.setupAlarmTimeMillis(5000L, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EYES_RELAX)
+            }, AppConstant.ID_EYES_RELAX)
+        }
+    }
 }

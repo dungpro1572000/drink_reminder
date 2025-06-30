@@ -1,7 +1,7 @@
 package com.dungz.drinkreminder.framework.sync.worker
 
 import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextExerciseAlarmWorker @AssistedInject constructor(
-    @Assisted private val appContext: Context,
-    @Assisted private val workerParams: WorkerParameters,
+    @Assisted  val appContext: Context,
+    @Assisted  val workerParams: WorkerParameters,
     private val appRepository: AppRepository,
     private val alarmScheduler: AlarmScheduler,
 ) :
@@ -33,7 +33,8 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             return Result.failure()
         }
         val nextExerciseTime = exerciseInfo.nextNotificationTime.convertStringTimeToDate().apply {
-            time = time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+            time =
+                time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
         val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
         val workingDay = workingTime.repeatDay
@@ -45,15 +46,14 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
                     nextNotificationTime = nextExerciseTime.formatToString()
                 )
             )
-            alarmScheduler.setupAlarmDate(nextExerciseTime, Intent().apply {
-                action = AppConstant.ALARM_ACTION_RECEIVER
-                `package` = AppConstant.packageName
-                putExtra(AppConstant.EXERCISE_BUNDLE_ID, AppConstant.ID_EXERCISE)
+            alarmScheduler.setupAlarmDate(nextExerciseTime, Bundle().apply {
+                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EXERCISE)
             }, AppConstant.ID_EXERCISE)
             return Result.success()
         } else {
             val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
-                time = time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
+                time =
+                    time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(

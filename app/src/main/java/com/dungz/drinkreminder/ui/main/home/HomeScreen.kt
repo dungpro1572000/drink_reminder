@@ -1,6 +1,5 @@
 package com.dungz.drinkreminder.ui.main.home
 
-import android.R.attr.type
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,12 +36,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.dungz.drinkreminder.R
 import com.dungz.drinkreminder.framework.receiver.AlarmReceiver
-import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.framework.sync.alarm.setUpAlarm
 import com.dungz.drinkreminder.ui.theme.BoldTitleTextStyle
 import com.dungz.drinkreminder.ui.theme.InstructionTextStyle
@@ -50,7 +47,6 @@ import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TextInPrimaryButton
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
 import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
-import com.dungz.drinkreminder.ui.theme.normalTextColor
 import com.dungz.drinkreminder.ui.theme.primaryButtonColor
 import com.dungz.drinkreminder.ui.theme.primaryColor
 import com.dungz.drinkreminder.ui.theme.secondaryColor
@@ -58,6 +54,7 @@ import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.DefaultButton
 import com.dungz.drinkreminder.ui.widget.InformationCard
 import com.dungz.drinkreminder.ui.widget.InformationCardType
+import com.dungz.drinkreminder.utilities.AppConstant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -209,6 +206,7 @@ fun HomeScreen(
             modifier = Modifier
                 .width(194.dp),
             onClick = {
+//                viewModel.setUpTime()
                 navigateToPage.invoke()
             }) {
             Text("Set up Time", style = TextInPrimaryButton)

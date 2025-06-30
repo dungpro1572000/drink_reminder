@@ -55,6 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dungz.drinkreminder.R
 import com.dungz.drinkreminder.data.roomdb.entity.DrinkWaterEntity
 import com.dungz.drinkreminder.data.roomdb.entity.ExerciseEntity
@@ -78,7 +79,7 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetupTimeScreen(
-    viewModel: SetupTimeViewModel, navigateBack: () -> Unit = {}
+    viewModel: SetupTimeViewModel = hiltViewModel(), navigateBack: () -> Unit = {}
 ) {
     val setUpTimeState = viewModel.uiState.collectAsState()
     val showTimeDialog = rememberSaveable { mutableStateOf(false) }
