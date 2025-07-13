@@ -43,6 +43,7 @@ fun InformationCard(
     onTimeEnd: () -> Unit,
     startTime: String = "",
     icon: @Composable () -> Unit = {},
+    isChecked: Boolean = false,
     buttonInCardClicked: () -> Unit = {},
 ) {
     val startTime = startTime.convertTimeStringToInts()
@@ -97,17 +98,19 @@ fun InformationCard(
                     Text("${timeLeft.value}", style = NormalTextStyle)
                 }
             }
-            Box(
-                Modifier
-                    .padding(bottom = 12.dp, end = 12.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                OnlyClickButton(
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    text = "Check this",
-                    onClick = buttonInCardClicked,
-                )
+            if (!isChecked) {
+                Box(
+                    Modifier
+                        .padding(bottom = 12.dp, end = 12.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    OnlyClickButton(
+                        modifier = Modifier.align(Alignment.BottomEnd),
+                        text = "Check this",
+                        onClick = buttonInCardClicked,
+                    )
+                }
             }
         }
     }

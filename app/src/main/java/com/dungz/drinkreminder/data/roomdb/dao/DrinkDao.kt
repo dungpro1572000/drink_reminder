@@ -14,4 +14,7 @@ interface DrinkDao {
 
     @Query("select * from DrinkWater order by id limit 1")
     fun getDrinkInfo(): Flow<DrinkWaterEntity?>
+
+    @Query("update DrinkWater set isChecked = :isChecked where id = 0")
+    fun updateDrinkChecked(isChecked: Boolean)
 }

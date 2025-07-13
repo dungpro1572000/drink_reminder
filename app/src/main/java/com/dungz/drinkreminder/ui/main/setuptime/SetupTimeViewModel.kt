@@ -73,7 +73,7 @@ class SetupTimeViewModel @Inject constructor(
     val uiState: StateFlow<SetupTimeState> = _uiState
 
 
-    init {
+    fun initialize() {
         viewModelScope.launch {
             combine(
                 eyeData,

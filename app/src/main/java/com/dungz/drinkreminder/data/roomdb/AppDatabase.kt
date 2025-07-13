@@ -18,7 +18,7 @@ import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 
 @Database(
     entities = [EyesEntity::class, ExerciseEntity::class, WorkingTime::class, RecordCompleteEntity::class, DrinkWaterEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

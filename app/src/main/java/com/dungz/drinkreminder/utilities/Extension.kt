@@ -1,7 +1,6 @@
 package com.dungz.drinkreminder.utilities
 
 import android.icu.util.Calendar
-import androidx.annotation.IntegerRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import java.text.SimpleDateFormat
@@ -60,4 +59,9 @@ fun String.convertTimeStringToInts(): Pair<Int, Int> {
 fun Date.formatToString(): String {
     val format = SimpleDateFormat("HH:mm", Locale.US)
     return format.format(this)
+}
+
+fun getTodayTime(): String {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return dateFormat.format(Date())
 }

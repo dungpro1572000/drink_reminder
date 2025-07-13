@@ -15,4 +15,7 @@ interface ExerciseDao {
 
     @Query("Select * from Exercise order by id limit 1")
     fun getAllExercise(): Flow<ExerciseEntity?>
+
+    @Query("Update Exercise set isChecked = :isChecked where id = 0")
+    fun updateExerciseChecked(isChecked: Boolean)
 }

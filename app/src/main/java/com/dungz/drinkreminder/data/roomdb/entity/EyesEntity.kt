@@ -5,12 +5,13 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Eyes")
 data class EyesEntity(
-    @PrimaryKey()
+    @PrimaryKey
     val id: Int = 0,
     val nextNotificationTime: String = "08:35",
     val isNotificationOn: Boolean = false,
     // Duration in minutes
-    val durationNotification:Int = 35
+    val durationNotification:Int = 35,
+    val isChecked : Boolean = false,
 ) {
     companion object{
         val listDuration = listOf<Int>(35, 45, 55)

@@ -98,6 +98,9 @@ fun SetupTimeScreen(
         is24Hour = true,
     )
 
+    LaunchedEffect(Unit) {
+        viewModel.initialize()
+    }
     if (showSavedSuccess.value) {
         Dialog(
             onDismissRequest = { showSavedSuccess.value = false },
@@ -620,12 +623,4 @@ fun TimePickerDialog(
 
 enum class SetupTimeType {
     MorningStart, MorningEnd, AfternoonStart, AfternoonEnd
-}
-
-sealed class BottomNavItem(
-    val route: String, val title: String
-) {
-    object Eyes : BottomNavItem("eye", "Eyes")
-    object Drink : BottomNavItem("drink", "Drink")
-    object Exercise : BottomNavItem("exercise", "Exercise")
 }

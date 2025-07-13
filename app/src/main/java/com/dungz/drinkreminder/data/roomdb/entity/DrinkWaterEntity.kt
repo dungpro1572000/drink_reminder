@@ -10,7 +10,8 @@ data class DrinkWaterEntity(
     val nextNotificationTime: String = "08:40",
     val isNotificationOn: Boolean = true,
     // Duration in minutes
-    val durationNotification: Int = 40
+    val durationNotification: Int = 40,
+    val isChecked : Boolean= false,
 ) {
     companion object {
         val listDuration = listOf<Int>(40, 50, 60)

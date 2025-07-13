@@ -43,7 +43,8 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         if (nextEyesRelaxTime.before(afternoonEndTime) && workingDay.contains(today)) {
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(
-                    nextNotificationTime = nextEyesRelaxTime.formatToString()
+                    nextNotificationTime = nextEyesRelaxTime.formatToString(),
+                    isChecked = false // Reset the checked state for the next notification
                 )
             )
             alarmScheduler.setupAlarmDate(nextEyesRelaxTime, Bundle().apply {
@@ -58,7 +59,8 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             }
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(
-                    nextNotificationTime = newDayTime.formatToString()
+                    nextNotificationTime = newDayTime.formatToString(),
+                    isChecked = false // Reset the checked state for the next notification
                 )
             )
             val worker =

@@ -156,6 +156,7 @@ fun HomeScreen(
             onTimeEnd = {},
             buttonInCardClicked = {
                 showBottomSheetState.value = true
+                viewModel.saveRecordExercise()
             },
             type = InformationCardType.EXERCISE,
             icon = {
@@ -166,6 +167,7 @@ fun HomeScreen(
                     contentDescription = null
                 )
             },
+            isChecked = exerciseFlow.value?.isChecked ?: false
         )
         Spacer(Modifier.height(12.dp))
         InformationCard(
@@ -173,6 +175,7 @@ fun HomeScreen(
             onTimeEnd = {},
             buttonInCardClicked = {
                 showBottomSheetState.value = true
+                viewModel.saveRecordDrink()
             },
             type = InformationCardType.DRINK,
             icon = {
@@ -182,7 +185,8 @@ fun HomeScreen(
                     tint = primaryColor,
                     contentDescription = null
                 )
-            }
+            },
+            isChecked = drinkWaterFlow.value?.isChecked ?: false
         )
         Spacer(Modifier.height(12.dp))
         InformationCard(
@@ -191,6 +195,9 @@ fun HomeScreen(
             type = InformationCardType.RELAX_EYES,
             buttonInCardClicked = {
                 showBottomSheetState.value = true
+                // save db daya
+                viewModel.saveRecordEyesRelax()
+
             },
             icon = {
                 Icon(
@@ -199,7 +206,8 @@ fun HomeScreen(
                     tint = primaryColor,
                     contentDescription = null
                 )
-            }
+            },
+            isChecked = eyesRelaxFlow.value?.isChecked ?: false
         )
         Spacer(Modifier.height(24.dp))
         DefaultButton(

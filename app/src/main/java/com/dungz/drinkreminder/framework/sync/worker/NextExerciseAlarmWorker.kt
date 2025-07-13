@@ -43,7 +43,8 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
         if (nextExerciseTime.before(afternoonEndTime) && workingDay.contains(today)) {
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(
-                    nextNotificationTime = nextExerciseTime.formatToString()
+                    nextNotificationTime = nextExerciseTime.formatToString(),
+                    isChecked = false, // Reset the checked state for the next notification
                 )
             )
             alarmScheduler.setupAlarmDate(nextExerciseTime, Bundle().apply {
@@ -57,7 +58,8 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             }
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(
-                    nextNotificationTime = newDayTime.formatToString()
+                    nextNotificationTime = newDayTime.formatToString(),
+                    isChecked = false, // Reset the checked state for the next notification
                 )
             )
             val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java)

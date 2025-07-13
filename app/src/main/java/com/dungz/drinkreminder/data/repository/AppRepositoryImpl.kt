@@ -9,6 +9,9 @@ import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
 import com.dungz.drinkreminder.data.roomdb.model.EyesMode
+import com.dungz.drinkreminder.data.roomdb.model.Record5DaysDrink
+import com.dungz.drinkreminder.data.roomdb.model.Record5DaysExercise
+import com.dungz.drinkreminder.data.roomdb.model.Record5DaysEyesRelax
 import com.dungz.drinkreminder.data.roomdb.model.RecordCompleteModel
 import com.dungz.drinkreminder.data.roomdb.model.WorkingTimeModel
 import com.dungz.drinkreminder.utilities.convertStringTimeToDate
@@ -24,7 +27,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             DrinkWaterEntity(
                 isNotificationOn = drinkWaterModel.isNotificationOn,
                 durationNotification = drinkWaterModel.durationNotification,
-                nextNotificationTime = drinkWaterModel.nextNotificationTime
+                nextNotificationTime = drinkWaterModel.nextNotificationTime,
+                isChecked = drinkWaterModel.isChecked
             )
         )
     }
@@ -34,7 +38,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             ExerciseEntity(
                 isNotificationOn = exerciseModel.isNotificationOn,
                 durationNotification = exerciseModel.durationNotification,
-                nextNotificationTime = exerciseModel.nextNotificationTime
+                nextNotificationTime = exerciseModel.nextNotificationTime,
+                isChecked = exerciseModel.isChecked
             )
         )
     }
@@ -44,7 +49,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             EyesEntity(
                 isNotificationOn = eyesMode.isNotificationOn,
                 durationNotification = eyesMode.durationNotification,
-                nextNotificationTime = eyesMode.nextNotificationTime
+                nextNotificationTime = eyesMode.nextNotificationTime,
+                isChecked = eyesMode.isChecked
             )
         )
     }
@@ -97,7 +103,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 DrinkWaterModel(
                     isNotificationOn = drinkWaterEntity.isNotificationOn,
                     durationNotification = drinkWaterEntity.durationNotification,
-                    nextNotificationTime = drinkWaterEntity.nextNotificationTime
+                    nextNotificationTime = drinkWaterEntity.nextNotificationTime,
+                    isChecked = drinkWaterEntity.isChecked
                 )
             }
         }
@@ -109,7 +116,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 ExerciseModel(
                     isNotificationOn = exerciseEntity.isNotificationOn,
                     durationNotification = exerciseEntity.durationNotification,
-                    nextNotificationTime = exerciseEntity.nextNotificationTime
+                    nextNotificationTime = exerciseEntity.nextNotificationTime,
+                    isChecked = exerciseEntity.isChecked
                 )
             }
         }
@@ -122,6 +130,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                     isNotificationOn = eyesEntity.isNotificationOn,
                     durationNotification = eyesEntity.durationNotification,
                     nextNotificationTime = eyesEntity.nextNotificationTime,
+                    isChecked = eyesEntity.isChecked
                 )
             }
         }
@@ -141,6 +150,18 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
 
     override fun getAmountOfDay(): Flow<Int> {
         return appDb.recordCompleteDao().getCountDays()
+    }
+
+    override fun updateDrinkChecked(isChecked: Boolean) {
+        appDb.drinkDao().updateDrinkChecked(isChecked)
+    }
+
+    override fun updateExerciseChecked(isChecked: Boolean) {
+        appDb.exerciseDao().updateExerciseChecked(isChecked)
+    }
+
+    override fun updateEyesChecked(isChecked: Boolean) {
+        appDb.eyesDao().updateEyesChecked(isChecked)
     }
 
     override fun getDrinkNotificationStatus(): Flow<Boolean> {
@@ -205,5 +226,57 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
 
     override fun getWorkingTime(): Flow<WorkingTime?> {
         return appDb.workingTimeDao().getWorkingTime()
+    }
+
+    override fun getRecordByDate(date: String): Flow<RecordCompleteModel?> {
+        return appDb.recordCompleteDao().getRecordByDate(date).map {
+            it?.let { recordCompleteEntity ->
+                RecordCompleteModel(
+                    date = recordCompleteEntity.date,
+                    drinkTime = recordCompleteEntity.drinkTime,
+                    eyesRelaxTime = recordCompleteEntity.eyesRelaxTime,
+                    exerciseTime = recordCompleteEntity.exerciseTime,
+                    totalDrinkTime = recordCompleteEntity.totalDrinkTime,
+                    totalEyesRelaxTime = recordCompleteEntity.totalEyesRelaxTime,
+                    totalExerciseTime = recordCompleteEntity.totalExerciseTime
+                )
+            }
+        }
+    }
+
+    override fun get5DayDrinkRecord(): Flow<List<Record5DaysDrink>> {
+        return appDb.recordCompleteDao().get5DayDrinkRecord()
+    }
+
+    override fun get5DayEyesRelaxRecord(): Flow<List<Record5DaysEyesRelax>> {
+        return appDb.recordCompleteDao().get5DayEyesRelaxRecord()
+    }
+
+    override fun get5DayExerciseRecord(): Flow<List<Record5DaysExercise>> {
+        return appDb.recordCompleteDao().get5DayExerciseRecord()
+    }
+
+    override suspend fun updateRecordDrinkTime(date: String) {
+        appDb.recordCompleteDao().updateDrinkTime(date)
+    }
+
+    override suspend fun updateRecordEyesRelaxTime( date: String) {
+        appDb.recordCompleteDao().updateEyesRelaxTime(date)
+    }
+
+    override suspend fun updateRecordExerciseTime( date: String) {
+        appDb.recordCompleteDao().updateExerciseTime( date)
+    }
+
+    override fun getDateDrinkCount(date: String): Flow<Int> {
+        return appDb.recordCompleteDao().getDateDrinkCount(date)
+    }
+
+    override fun getDateEyesRelaxCount(date: String): Flow<Int> {
+        return appDb.recordCompleteDao().getDateEyesRelaxCount(date)
+    }
+
+    override fun getDateExerciseCount(date: String): Flow<Int> {
+        return appDb.recordCompleteDao().getDateExerciseCount(date)
     }
 }

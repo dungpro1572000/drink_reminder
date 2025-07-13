@@ -14,4 +14,7 @@ interface EyesDao {
 
     @Query("Select * from Eyes order by id limit 1")
     fun getAllEyes(): Flow<EyesEntity?>
+
+    @Query("Update Eyes set isChecked = :isChecked where id = 0")
+    fun updateEyesChecked(isChecked: Boolean)
 }

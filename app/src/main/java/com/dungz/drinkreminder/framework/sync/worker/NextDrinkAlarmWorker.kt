@@ -50,7 +50,8 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
             if (newDrinkTimer.before(afternoonEndTime) && workingDay.contains(today)) {
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(
-                        nextNotificationTime = newDrinkTimer.formatToString()
+                        nextNotificationTime = newDrinkTimer.formatToString(),
+                        isChecked = false,
                     )
                 )
                 alarmScheduler.setupAlarmDate(
@@ -65,7 +66,8 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 }
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(
-                        nextNotificationTime = newDayTime.formatToString()
+                        nextNotificationTime = newDayTime.formatToString(),
+                        isChecked = false
                     )
                 )
                 val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java)

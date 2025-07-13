@@ -10,7 +10,8 @@ data class ExerciseEntity(
     val nextNotificationTime: String = "09:00",
     val isNotificationOn : Boolean = false,
     // Duration in minutes
-    val durationNotification: Int = 55
+    val durationNotification: Int = 55,
+    val isChecked: Boolean = false,
 ) {
     companion object{
         val listDuration = listOf<Int>(60, 65, 75)
