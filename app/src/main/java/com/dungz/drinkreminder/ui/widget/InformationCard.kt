@@ -23,10 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dungz.drinkreminder.R
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
-import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
-import com.dungz.drinkreminder.ui.theme.borderColor
 import com.dungz.drinkreminder.utilities.convertTimeStringToInts
 import com.dungz.drinkreminder.utilities.countdownFlow
 import java.time.LocalTime
@@ -58,7 +57,7 @@ fun InformationCard(
             defaultElevation = 12.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = blueBackgroundColor
+            containerColor = LocalBaseColorScheme.current.blueBackgroundColor
         ),
         modifier = modifier
             .height(148.dp)
@@ -66,7 +65,7 @@ fun InformationCard(
             .clickable {
                 onCardClick.invoke()
             }
-            .border(0.75.dp, color = borderColor, shape = RoundedCornerShape(15.dp)),
+            .border(0.75.dp, color = LocalBaseColorScheme.current.borderColor, shape = RoundedCornerShape(15.dp)),
         shape = RoundedCornerShape(15.dp)
     ) {
         Column {

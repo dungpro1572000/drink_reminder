@@ -43,14 +43,10 @@ import com.dungz.drinkreminder.framework.receiver.AlarmReceiver
 import com.dungz.drinkreminder.framework.sync.alarm.setUpAlarm
 import com.dungz.drinkreminder.ui.theme.BoldTitleTextStyle
 import com.dungz.drinkreminder.ui.theme.InstructionTextStyle
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TextInPrimaryButton
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
-import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
-import com.dungz.drinkreminder.ui.theme.primaryButtonColor
-import com.dungz.drinkreminder.ui.theme.primaryColor
-import com.dungz.drinkreminder.ui.theme.secondaryColor
-import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.DefaultButton
 import com.dungz.drinkreminder.ui.widget.InformationCard
 import com.dungz.drinkreminder.ui.widget.InformationCardType
@@ -103,7 +99,7 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .height(340.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(secondaryColor)
+                        .background(LocalBaseColorScheme.current.secondaryColor)
                         .padding(top = 45.dp, end = 25.dp, start = 12.dp)
                         .zIndex(1f)
                 ) {
@@ -125,7 +121,7 @@ fun HomeScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(blueBackgroundColor)
+            .background(LocalBaseColorScheme.current.blueBackgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -137,8 +133,8 @@ fun HomeScreen(
                     .size(40.dp)
                     .clip(RoundedCornerShape(45.dp)),
                 colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = whiteColor,
-                    contentColor = primaryButtonColor
+                    containerColor = LocalBaseColorScheme.current.whiteColor,
+                    contentColor = LocalBaseColorScheme.current.primaryColor
                 ),
                 onClick = {
                     val intent = Intent(context, AlarmReceiver::class.java).apply {
@@ -163,7 +159,7 @@ fun HomeScreen(
                 Icon(
                     modifier = Modifier.padding(12.dp),
                     painter = painterResource(R.drawable.heart_beat),
-                    tint = primaryColor,
+                    tint = LocalBaseColorScheme.current.primaryColor,
                     contentDescription = null
                 )
             },
@@ -182,7 +178,7 @@ fun HomeScreen(
                 Icon(
                     modifier = Modifier.padding(12.dp),
                     painter = painterResource(R.drawable.water_drop),
-                    tint = primaryColor,
+                    tint = LocalBaseColorScheme.current.primaryColor,
                     contentDescription = null
                 )
             },
@@ -203,7 +199,7 @@ fun HomeScreen(
                 Icon(
                     modifier = Modifier.padding(12.dp),
                     painter = painterResource(R.drawable.icon_eyes),
-                    tint = primaryColor,
+                    tint = LocalBaseColorScheme.current.primaryColor,
                     contentDescription = null
                 )
             },

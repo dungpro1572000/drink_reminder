@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "RecordComplete")
 data class RecordCompleteEntity(
-    @PrimaryKey
+    @PrimaryKey()
     val date: String,
     val drinkTime: Int,
     val eyesRelaxTime: Int,

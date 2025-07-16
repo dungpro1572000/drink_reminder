@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
@@ -13,7 +14,7 @@ import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.AppConstant.ID_DRINK_WATER
 import com.dungz.drinkreminder.utilities.AppConstant.ID_EXERCISE
 import com.dungz.drinkreminder.utilities.AppConstant.ID_EYES_RELAX
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -43,13 +44,13 @@ class SetUpEveryDayWorker @AssistedInject constructor(
             dataWorkingTime ?: return Result.failure()
 
             // calculate time for alarm
-            val drinkTime = dataWorkingTime.morningStartTime.convertStringTimeToDate().apply {
+            val drinkTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
                 time + dataDrink.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
-            val eyesRelaxTime = dataWorkingTime.morningStartTime.convertStringTimeToDate().apply {
+            val eyesRelaxTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
                 time + dateEyes.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
-            val exerciseTime = dataWorkingTime.morningStartTime.convertStringTimeToDate().apply {
+            val exerciseTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
                 time + dataExercise.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
 //         calculate next time for alarm
@@ -94,6 +95,6 @@ class SetUpEveryDayWorker @AssistedInject constructor(
         val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java).setInitialDelay(
             2,
             TimeUnit.HOURS
-        ).build()
+        ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
     }
 }

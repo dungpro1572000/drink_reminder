@@ -33,7 +33,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent == null) return
-        if (context == null) return
+       if (context == null) return
         if (intent.action == AppConstant.ALARM_ACTION_RECEIVER) {
             val coroutineScope = CoroutineScope(dispatcher)
 

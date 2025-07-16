@@ -11,13 +11,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 import com.dungz.drinkreminder.ui.theme.TextInPrimaryButton
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
-import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
-import com.dungz.drinkreminder.ui.theme.borderColor
-import com.dungz.drinkreminder.ui.theme.normalTextColor
-import com.dungz.drinkreminder.ui.theme.primaryColor
-import com.dungz.drinkreminder.ui.theme.whiteColor
 
 @Composable
 fun OnlyClickButton(
@@ -29,9 +25,9 @@ fun OnlyClickButton(
         elevation = ButtonDefaults.buttonElevation(12.dp),
         modifier = modifier,
         onClick = onClick, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(
-            contentColor = whiteColor, containerColor = primaryColor
+            contentColor = LocalBaseColorScheme.current.whiteColor, containerColor = LocalBaseColorScheme.current.primaryColor
         )
     ) {
-        Text(text, style = TitleTextStyle.copy(color = whiteColor))
+        Text(text, style = TitleTextStyle.copy(color = LocalBaseColorScheme.current.whiteColor))
     }
 }

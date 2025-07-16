@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.dungz.drinkreminder.activity.MainActivity
 import com.dungz.drinkreminder.framework.receiver.NotificationReceiver
 import com.dungz.drinkreminder.utilities.AppConstant
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,11 +45,21 @@ class NotificationManager @Inject constructor(@ApplicationContext private val co
             checkThisAction,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val openAppPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE for security
+        )
         val notificationBuilder = NotificationCompat.Builder(context, "reminder_channel")
             .setSmallIcon(notificationData.notificationIcon) // đảm bảo bạn có icon này
             .setContentTitle(notificationData.title)
             .setContentText(notificationData.message)
             .addAction(notificationData.notificationIcon, "Check this", checkThisActionIntent)
+            .setContentIntent(openAppPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
 
         val notificationManager = NotificationManagerCompat.from(context)

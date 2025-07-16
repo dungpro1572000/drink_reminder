@@ -5,13 +5,16 @@ import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
@@ -20,8 +23,8 @@ import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextExerciseAlarmWorker @AssistedInject constructor(
-    @Assisted  val appContext: Context,
-    @Assisted  val workerParams: WorkerParameters,
+    @Assisted val appContext: Context,
+    @Assisted val workerParams: WorkerParameters,
     private val appRepository: AppRepository,
     private val alarmScheduler: AlarmScheduler,
 ) :
@@ -32,11 +35,11 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
         if (exerciseInfo == null || workingTime == null) {
             return Result.failure()
         }
-        val nextExerciseTime = exerciseInfo.nextNotificationTime.convertStringTimeToDate().apply {
+        val nextExerciseTime = exerciseInfo.nextNotificationTime.convertStringTimeToHHmm().apply {
             time =
                 time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
-        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
+        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToHHmm()
         val workingDay = workingTime.repeatDay
 
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -52,7 +55,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             }, AppConstant.ID_EXERCISE)
             return Result.success()
         } else {
-            val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
+            val newDayTime = workingTime.morningStartTime.convertStringTimeToHHmm().apply {
                 time =
                     time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
@@ -62,7 +65,18 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
                     isChecked = false, // Reset the checked state for the next notification
                 )
             )
-            val worker = OneTimeWorkRequest.Builder(SetUpEveryDayWorker::class.java)
+
+            // calculate for record how many time can do exercise
+            val exerciseTimes =
+                (minuteBetween2Date(workingTime.morningStartTime, workingTime.morningEndTime) +
+                        minuteBetween2Date(
+                            workingTime.afternoonStartTime,
+                            workingTime.afternoonEndTime
+                        )) / exerciseInfo.durationNotification
+
+
+            val worker = OneTimeWorkRequest.Builder(NextExerciseAlarmWorker::class.java)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setInitialDelay(4, TimeUnit.HOURS)
                 .build()
 
@@ -75,6 +89,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
 
     companion object {
         val worker = OneTimeWorkRequest.Builder(NextExerciseAlarmWorker::class.java)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
     }
 }

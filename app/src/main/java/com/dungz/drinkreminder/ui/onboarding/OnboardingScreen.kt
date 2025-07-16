@@ -28,9 +28,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dungz.drinkreminder.activity.MainActivityViewModel
 import com.dungz.drinkreminder.ui.theme.BoldTitleTextStyle
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TextInPrimaryButton
-import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.DefaultButton
 import com.dungz.drinkreminder.ui.widget.ListIndicatorWidget
 import kotlinx.coroutines.launch
@@ -46,7 +46,7 @@ fun OnboardingScreen(viewModel: MainActivityViewModel, onStartMain: () -> Unit =
     Box(
         Modifier
             .fillMaxSize()
-            .background(color = whiteColor)
+            .background(color = LocalBaseColorScheme.current.whiteColor)
     ) {
         val pagerState = rememberPagerState(
             initialPage = 0,

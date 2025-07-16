@@ -5,13 +5,15 @@ import android.os.Bundle
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
@@ -31,11 +33,11 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         if (eyesRelaxInfo == null || workingTime == null) {
             return Result.failure()
         }
-        val nextEyesRelaxTime = eyesRelaxInfo.nextNotificationTime.convertStringTimeToDate().apply {
+        val nextEyesRelaxTime = eyesRelaxInfo.nextNotificationTime.convertStringTimeToHHmm().apply {
             time =
                 time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
-        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToDate()
+        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToHHmm()
         val workingDay = workingTime.repeatDay
 
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -53,7 +55,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         } else {
 
             // set workManager for next day
-            val newDayTime = workingTime.morningStartTime.convertStringTimeToDate().apply {
+            val newDayTime = workingTime.morningStartTime.convertStringTimeToHHmm().apply {
                 time =
                     time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
@@ -63,11 +65,19 @@ class NextEyesAlarmWorker @AssistedInject constructor(
                     isChecked = false // Reset the checked state for the next notification
                 )
             )
+            // calculate for record how many time can do exercise
+            val exerciseTimes =
+                (minuteBetween2Date(workingTime.morningStartTime, workingTime.morningEndTime) +
+                        minuteBetween2Date(
+                            workingTime.afternoonStartTime,
+                            workingTime.afternoonEndTime
+                        )) / eyesRelaxInfo.durationNotification
             val worker =
                 OneTimeWorkRequest.Builder(NextEyesAlarmWorker::class.java).setInitialDelay(
                     4,
                     TimeUnit.HOURS
-                ).build()
+                )
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
             WorkManager.getInstance(context = appContext).enqueue(worker)
         }
         return Result.success()
@@ -75,6 +85,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
 
     companion object {
         val startWorker = OneTimeWorkRequest.Builder(NextEyesAlarmWorker::class.java)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
     }
 }

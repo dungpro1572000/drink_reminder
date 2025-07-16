@@ -7,9 +7,7 @@ import androidx.compose.material3.ButtonElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.dungz.drinkreminder.ui.theme.disableButtonColor
-import com.dungz.drinkreminder.ui.theme.primaryButtonColor
-import com.dungz.drinkreminder.ui.theme.textInPrimaryButtonColor
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 
 enum class ButtonState {
     On, Off
@@ -37,8 +35,8 @@ fun DefaultButton(
         shape = RoundedCornerShape(8.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (state.buttonState == ButtonState.On) primaryButtonColor else disableButtonColor,
-            contentColor = textInPrimaryButtonColor
+            containerColor = if (state.buttonState == ButtonState.On) LocalBaseColorScheme.current.primaryButtonColor else LocalBaseColorScheme.current.disableButtonColor,
+            contentColor = LocalBaseColorScheme.current.textInPrimaryButtonColor
         )
     ) {
         content()

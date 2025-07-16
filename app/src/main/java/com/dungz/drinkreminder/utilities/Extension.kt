@@ -6,6 +6,7 @@ import androidx.compose.material3.TimePickerState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 
 fun Int.convertToDay(): String {
     return when (this) {
@@ -35,9 +36,16 @@ fun formatTime(state: TimePickerState): String {
     return String.format(Locale.US, "%02d:%02d", hour, minute)
 }
 
-fun String.convertStringTimeToDate(): Date {
+fun String.convertStringTimeToHHmm(): Date {
     val format = SimpleDateFormat("HH:mm", Locale.US)
     return format.parse(this)
+}
+
+fun minuteBetween2Date(start: String, end: String): Int {
+    val startFormat = start.convertStringTimeToHHmm()
+    val endFormat = end.convertStringTimeToHHmm()
+    val diffInMillis = startFormat.time - endFormat.time
+    return abs(diffInMillis / (1000 * 60)).toInt() // Convert milliseconds to minutes
 }
 
 fun String.convertTimeStringToInts(): Pair<Int, Int> {

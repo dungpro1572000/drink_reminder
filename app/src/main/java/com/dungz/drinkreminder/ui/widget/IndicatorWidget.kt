@@ -9,14 +9,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
-import com.dungz.drinkreminder.ui.theme.indicatorColor
-import com.dungz.drinkreminder.ui.theme.primaryButtonColor
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 
 @Composable
 fun ListIndicatorWidget(currentIndex: Int = 0, index: Int = 3, modifier: Modifier = Modifier) {
@@ -37,7 +33,7 @@ fun IndicatorDetail(isSelected: Boolean = false) {
     Box(
         modifier = Modifier
             .size(width = 24.dp, height = 6.dp)
-            .border(width = 0.5.dp, shape = RoundedCornerShape(50.dp), color = indicatorColor)
-            .background(if (isSelected) primaryButtonColor else indicatorColor),
+            .border(width = 0.5.dp, shape = RoundedCornerShape(50.dp), color = LocalBaseColorScheme.current.indicatorColor)
+            .background(if (isSelected) LocalBaseColorScheme.current.primaryButtonColor else LocalBaseColorScheme.current.indicatorColor),
     )
 }

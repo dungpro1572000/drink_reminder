@@ -14,7 +14,7 @@ import com.dungz.drinkreminder.data.roomdb.model.Record5DaysExercise
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysEyesRelax
 import com.dungz.drinkreminder.data.roomdb.model.RecordCompleteModel
 import com.dungz.drinkreminder.data.roomdb.model.WorkingTimeModel
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Date
@@ -185,7 +185,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getMorningStartTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.morningStartTime?.convertStringTimeToDate() ?: Date().apply {
+            it?.morningStartTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }
@@ -194,7 +194,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getMorningEndTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.morningEndTime?.convertStringTimeToDate() ?: Date().apply {
+            it?.morningEndTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }
@@ -203,7 +203,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getAfternoonStartTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.afternoonStartTime?.convertStringTimeToDate() ?: Date().apply {
+            it?.afternoonStartTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }
@@ -212,7 +212,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getAfternoonEndTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.afternoonEndTime?.convertStringTimeToDate() ?: Date().apply {
+            it?.afternoonEndTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }
@@ -226,6 +226,10 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
 
     override fun getWorkingTime(): Flow<WorkingTime?> {
         return appDb.workingTimeDao().getWorkingTime()
+    }
+
+    override suspend fun insertRecord(recordCompleteEntity: RecordCompleteEntity) {
+        appDb.recordCompleteDao().insertRecord(recordCompleteEntity)
     }
 
     override fun getRecordByDate(date: String): Flow<RecordCompleteModel?> {
@@ -260,12 +264,24 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         appDb.recordCompleteDao().updateDrinkTime(date)
     }
 
-    override suspend fun updateRecordEyesRelaxTime( date: String) {
+    override suspend fun updateRecordEyesRelaxTime(date: String) {
         appDb.recordCompleteDao().updateEyesRelaxTime(date)
     }
 
-    override suspend fun updateRecordExerciseTime( date: String) {
-        appDb.recordCompleteDao().updateExerciseTime( date)
+    override suspend fun updateRecordExerciseTime(date: String) {
+        appDb.recordCompleteDao().updateExerciseTime(date)
+    }
+
+    override fun updateTotalDrinkTime(totalDrinkTime: Int, date: String) {
+        appDb.recordCompleteDao().updateOneDayDrinkTimes(date, totalDrinkTime)
+    }
+
+    override fun updateTotalEyesRelaxTime(totalEyesRelaxTime: Int, date: String) {
+        appDb.recordCompleteDao().updateOneDayEyesRelaxTimes(date, totalEyesRelaxTime)
+    }
+
+    override fun updateTotalExerciseTime(totalExerciseTime: Int, date: String) {
+        appDb.recordCompleteDao().updateOneDayExerciseTimes(date, totalExerciseTime)
     }
 
     override fun getDateDrinkCount(date: String): Flow<Int> {

@@ -12,7 +12,7 @@ import com.dungz.drinkreminder.data.roomdb.model.EyesMode
 import com.dungz.drinkreminder.data.roomdb.model.WorkingTimeModel
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -163,7 +163,7 @@ class SetupTimeViewModel @Inject constructor(
             )
             appRepository.setWorkTime(workingTime)
 
-            val nextEyesNotification = _uiState.value.morningTimerStart.convertStringTimeToDate()
+            val nextEyesNotification = _uiState.value.morningTimerStart.convertStringTimeToHHmm()
                 .apply {
                     time = time + _uiState.value.eyesNotificationTime * 60 * 1000
                 }
@@ -182,7 +182,7 @@ class SetupTimeViewModel @Inject constructor(
                 "Eyes next notification time: ${eyesData.nextNotificationTime}"
             )
 
-            val drinkNotificationTime = _uiState.value.morningTimerStart.convertStringTimeToDate()
+            val drinkNotificationTime = _uiState.value.morningTimerStart.convertStringTimeToHHmm()
                 .apply {
                     time = time + _uiState.value.drinkWaterNotificationTime * 60 * 1000
                 }
@@ -202,7 +202,7 @@ class SetupTimeViewModel @Inject constructor(
             }, AppConstant.ID_DRINK_WATER)
 
             val nextExerciseNotification =
-                _uiState.value.morningTimerStart.convertStringTimeToDate()
+                _uiState.value.morningTimerStart.convertStringTimeToHHmm()
                     .apply {
                         time = time + _uiState.value.exerciseNotificationTime * 60 * 1000
                     }

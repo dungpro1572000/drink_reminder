@@ -60,4 +60,13 @@ interface RecordCompleteDao {
 
     @Query("select * from RecordComplete")
     fun getRecordCompleteData(): Flow<List<RecordCompleteEntity>?>
+
+    @Query("update RecordComplete set totalDrinkTime = :totalDrinkTimes where date = :date")
+    fun updateOneDayDrinkTimes(date: String, totalDrinkTimes: Int)
+
+    @Query("update RecordComplete set totalEyesRelaxTime = :totalEyesRelaxTimes where date = :date")
+    fun updateOneDayEyesRelaxTimes(date: String, totalEyesRelaxTimes: Int)
+
+    @Query("update RecordComplete set totalExerciseTime = :totalExerciseTimes where date = :date")
+    fun updateOneDayExerciseTimes(date: String, totalExerciseTimes: Int)
 }

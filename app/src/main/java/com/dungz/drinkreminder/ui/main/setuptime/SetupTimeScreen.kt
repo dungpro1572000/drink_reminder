@@ -60,15 +60,11 @@ import com.dungz.drinkreminder.R
 import com.dungz.drinkreminder.data.roomdb.entity.DrinkWaterEntity
 import com.dungz.drinkreminder.data.roomdb.entity.ExerciseEntity
 import com.dungz.drinkreminder.data.roomdb.entity.EyesEntity
+import com.dungz.drinkreminder.ui.theme.LocalBaseColorScheme
 import com.dungz.drinkreminder.ui.theme.NormalTextStyle
 import com.dungz.drinkreminder.ui.theme.TitleTextStyle
-import com.dungz.drinkreminder.ui.theme.blueBackgroundColor
-import com.dungz.drinkreminder.ui.theme.borderColor
-import com.dungz.drinkreminder.ui.theme.primaryButtonColor
-import com.dungz.drinkreminder.ui.theme.primaryColor
-import com.dungz.drinkreminder.ui.theme.whiteColor
 import com.dungz.drinkreminder.ui.widget.Line
-import com.dungz.drinkreminder.utilities.convertStringTimeToDate
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.convertToDay
 import com.dungz.drinkreminder.utilities.formatTime
 import com.dungz.drinkreminder.utilities.formatToString
@@ -132,7 +128,7 @@ fun SetupTimeScreen(
         snackbarHost = {
             SnackbarHost(snackBarState, snackbar = { data ->
                 Snackbar(
-                    containerColor = primaryButtonColor,
+                    containerColor = LocalBaseColorScheme.current.primaryButtonColor,
                     contentColor = Color.White,
                     snackbarData = data
                 )
@@ -147,7 +143,7 @@ fun SetupTimeScreen(
                                 .padding(end = 8.dp)
                                 .size(24.dp),
                             painter = painterResource(R.drawable.icon_setting),
-                            tint = primaryColor,
+                            tint = LocalBaseColorScheme.current.primaryColor,
                             contentDescription = null
                         )
                         Text("Setup Time", style = TitleTextStyle)
@@ -164,13 +160,13 @@ fun SetupTimeScreen(
                                 onClick = {
                                     coroutineScope.launch {
                                         val startMorningTime =
-                                            setUpTimeState.value.morningTimerStart.convertStringTimeToDate()
+                                            setUpTimeState.value.morningTimerStart.convertStringTimeToHHmm()
                                         val endMorningTime =
-                                            setUpTimeState.value.morningTimerEnd.convertStringTimeToDate()
+                                            setUpTimeState.value.morningTimerEnd.convertStringTimeToHHmm()
                                         val afternoonStartTime =
-                                            setUpTimeState.value.afternoonTimerStart.convertStringTimeToDate()
+                                            setUpTimeState.value.afternoonTimerStart.convertStringTimeToHHmm()
                                         val afternoonEndTime =
-                                            setUpTimeState.value.afternoonTimerEnd.convertStringTimeToDate()
+                                            setUpTimeState.value.afternoonTimerEnd.convertStringTimeToHHmm()
 
                                         if (endMorningTime.before(startMorningTime) || afternoonStartTime.before(
                                                 endMorningTime
@@ -197,7 +193,7 @@ fun SetupTimeScreen(
                                         }
                                     }
                                 }, colors = IconButtonDefaults.iconButtonColors(
-                                    contentColor = primaryColor
+                                    contentColor = LocalBaseColorScheme.current.primaryColor
                                 )
                             ) {
                                 Icon(
@@ -209,7 +205,7 @@ fun SetupTimeScreen(
                             Spacer(Modifier.width(12.dp))
                             Text(
                                 "Reset",
-                                style = NormalTextStyle.copy(color = primaryColor),
+                                style = NormalTextStyle.copy(color = LocalBaseColorScheme.current.primaryColor),
                                 modifier = Modifier
                                     .clickable {
                                         viewModel.resetData()
@@ -224,7 +220,7 @@ fun SetupTimeScreen(
             Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .background(blueBackgroundColor)
+                .background(LocalBaseColorScheme.current.blueBackgroundColor)
         ) {
             if (showTimeDialog.value) {
                 TimePickerDialog(
@@ -257,7 +253,9 @@ fun SetupTimeScreen(
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
+                        width = 1.dp,
+                        color = LocalBaseColorScheme.current.borderColor,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -274,7 +272,7 @@ fun SetupTimeScreen(
 
                     TextItem(
                         title = "Start Time",
-                        value = setUpTimeState.value.morningTimerStart.convertStringTimeToDate()
+                        value = setUpTimeState.value.morningTimerStart.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
@@ -293,7 +291,7 @@ fun SetupTimeScreen(
                 ) {
                     TextItem(
                         title = "End Time",
-                        value = setUpTimeState.value.morningTimerEnd.convertStringTimeToDate()
+                        value = setUpTimeState.value.morningTimerEnd.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
@@ -309,7 +307,9 @@ fun SetupTimeScreen(
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
+                        width = 1.dp,
+                        color = LocalBaseColorScheme.current.borderColor,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -324,7 +324,7 @@ fun SetupTimeScreen(
 
                     TextItem(
                         title = "Start working time",
-                        value = setUpTimeState.value.afternoonTimerStart.convertStringTimeToDate()
+                        value = setUpTimeState.value.afternoonTimerStart.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
@@ -343,7 +343,7 @@ fun SetupTimeScreen(
                 ) {
                     TextItem(
                         title = "End working time",
-                        value = setUpTimeState.value.afternoonTimerEnd.convertStringTimeToDate()
+                        value = setUpTimeState.value.afternoonTimerEnd.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
@@ -359,7 +359,9 @@ fun SetupTimeScreen(
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
+                        width = 1.dp,
+                        color = LocalBaseColorScheme.current.borderColor,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -475,7 +477,9 @@ fun SetupTimeScreen(
                 Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .border(
-                        width = 1.dp, color = borderColor, shape = RoundedCornerShape(12.dp)
+                        width = 1.dp,
+                        color = LocalBaseColorScheme.current.borderColor,
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .clip(shape = RoundedCornerShape(12.dp))
                     .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -492,7 +496,7 @@ fun SetupTimeScreen(
                     Text("Eyes Notification Status", style = MaterialTheme.typography.titleLarge)
                     Switch(
                         colors = SwitchDefaults.colors(
-                            checkedTrackColor = primaryColor,
+                            checkedTrackColor = LocalBaseColorScheme.current.primaryColor,
                         ),
                         checked = setUpTimeState.value.eyesNotificationStatus,
                         onCheckedChange = {
@@ -508,7 +512,7 @@ fun SetupTimeScreen(
                     Text("Drink Notification Status", style = MaterialTheme.typography.titleLarge)
                     Switch(
                         colors = SwitchDefaults.colors(
-                            checkedTrackColor = primaryColor,
+                            checkedTrackColor = LocalBaseColorScheme.current.primaryColor,
                         ),
                         checked = setUpTimeState.value.drinkWaterNotificationStatus,
                         onCheckedChange = {
@@ -526,7 +530,7 @@ fun SetupTimeScreen(
                     )
                     Switch(
                         colors = SwitchDefaults.colors(
-                            checkedTrackColor = primaryColor,
+                            checkedTrackColor = LocalBaseColorScheme.current.primaryColor,
                         ),
                         checked = setUpTimeState.value.exerciseNotificationStatus,
                         onCheckedChange = {
@@ -547,8 +551,8 @@ fun SetupTimeScreen(
                     (1..7).forEach { index ->
                         FilterChip(
                             colors = FilterChipDefaults.filterChipColors(
-                                containerColor = whiteColor,
-                                selectedContainerColor = primaryColor, // Màu nền khi selected
+                                containerColor = LocalBaseColorScheme.current.whiteColor,
+                                selectedContainerColor = LocalBaseColorScheme.current.primaryColor, // Màu nền khi selected
 
                                 labelColor = Color.Black,
                                 selectedLabelColor = Color.Black
@@ -595,7 +599,7 @@ fun TextItem(title: String, value: String, click: () -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .background(primaryColor)
+                .background(LocalBaseColorScheme.current.primaryColor)
                 .padding(8.dp)
                 .clickable {
                     click.invoke()

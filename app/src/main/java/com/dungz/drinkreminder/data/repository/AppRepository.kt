@@ -1,5 +1,6 @@
 package com.dungz.drinkreminder.data.repository
 
+import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
@@ -49,6 +50,7 @@ interface AppRepository {
     fun getWorkingTime(): Flow<WorkingTime?>
 
     //Record
+    suspend fun insertRecord(recordCompleteModel: RecordCompleteEntity)
     fun getRecordByDate(date: String): Flow<RecordCompleteModel?>
     fun get5DayDrinkRecord(): Flow<List<Record5DaysDrink>>
     fun get5DayEyesRelaxRecord(): Flow<List<Record5DaysEyesRelax>>
@@ -56,6 +58,9 @@ interface AppRepository {
     suspend fun updateRecordDrinkTime(date: String)
     suspend fun updateRecordEyesRelaxTime(date: String)
     suspend fun updateRecordExerciseTime(date: String)
+    fun updateTotalDrinkTime(totalDrinkTime:Int ,date: String)
+    fun updateTotalEyesRelaxTime(totalEyesRelaxTime:Int ,date: String)
+    fun updateTotalExerciseTime(totalExerciseTime:Int ,date: String)
 
     fun getDateDrinkCount(date: String): Flow<Int>
     fun getDateEyesRelaxCount(date: String): Flow<Int>
