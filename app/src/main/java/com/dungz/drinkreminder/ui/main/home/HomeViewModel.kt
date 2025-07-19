@@ -24,10 +24,8 @@ class HomeViewModel @Inject constructor(
         .stateIn(
             viewModelScope, SharingStarted.Eagerly,
             WorkingTime(
-                morningStartTime = "08:00",
-                afternoonEndTime = "17:00",
-                morningEndTime = "12:00",
-                afternoonStartTime = "13:00",
+                startTime = "08:00",
+                endTime = "12:00",
                 repeatDay = emptyList()
             )
         )

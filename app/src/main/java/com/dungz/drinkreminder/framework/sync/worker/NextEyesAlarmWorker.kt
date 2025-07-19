@@ -9,14 +9,18 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.getTodayTime
 import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -37,7 +41,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             time =
                 time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
-        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToHHmm()
+        val afternoonEndTime = workingTime.endTime.convertStringTimeToHHmm()
         val workingDay = workingTime.repeatDay
 
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -55,7 +59,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         } else {
 
             // set workManager for next day
-            val newDayTime = workingTime.morningStartTime.convertStringTimeToHHmm().apply {
+            val newDayTime = workingTime.startTime.convertStringTimeToHHmm().apply {
                 time =
                     time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
@@ -67,11 +71,17 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             )
             // calculate for record how many time can do exercise
             val exerciseTimes =
-                (minuteBetween2Date(workingTime.morningStartTime, workingTime.morningEndTime) +
-                        minuteBetween2Date(
-                            workingTime.afternoonStartTime,
-                            workingTime.afternoonEndTime
-                        )) / eyesRelaxInfo.durationNotification
+                minuteBetween2Date(
+                    workingTime.startTime,
+                    workingTime.endTime
+                ) / eyesRelaxInfo.durationNotification -1
+
+            appRepository.insertRecord(
+                RecordCompleteEntity(
+                    date = getTodayTime()
+                )
+            )
+            appRepository.updateTotalEyesRelaxTime(exerciseTimes, getTodayTime())
             val worker =
                 OneTimeWorkRequest.Builder(NextEyesAlarmWorker::class.java).setInitialDelay(
                     4,

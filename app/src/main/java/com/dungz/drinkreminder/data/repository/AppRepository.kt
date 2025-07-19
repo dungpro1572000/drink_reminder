@@ -44,8 +44,6 @@ interface AppRepository {
     // Working time for schedule
     fun getMorningStartTime(): Flow<Date>
     fun getMorningEndTime(): Flow<Date>
-    fun getAfternoonStartTime(): Flow<Date>
-    fun getAfternoonEndTime(): Flow<Date>
     fun getRepeatDay(): Flow<List<Int>>
     fun getWorkingTime(): Flow<WorkingTime?>
 

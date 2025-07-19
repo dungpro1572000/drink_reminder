@@ -44,13 +44,13 @@ class SetUpEveryDayWorker @AssistedInject constructor(
             dataWorkingTime ?: return Result.failure()
 
             // calculate time for alarm
-            val drinkTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
+            val drinkTime = dataWorkingTime.startTime.convertStringTimeToHHmm().apply {
                 time + dataDrink.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
-            val eyesRelaxTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
+            val eyesRelaxTime = dataWorkingTime.startTime.convertStringTimeToHHmm().apply {
                 time + dateEyes.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
-            val exerciseTime = dataWorkingTime.morningStartTime.convertStringTimeToHHmm().apply {
+            val exerciseTime = dataWorkingTime.startTime.convertStringTimeToHHmm().apply {
                 time + dataExercise.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
 //         calculate next time for alarm

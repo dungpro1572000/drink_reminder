@@ -1,10 +1,8 @@
 package com.dungz.drinkreminder.ui.main.setuptime
 
 data class SetupTimeState(
-    val morningTimerStart: String,
-    val morningTimerEnd: String,
-    val afternoonTimerStart: String,
-    val afternoonTimerEnd: String,
+    val startTime: String,
+    val endTime: String,
     val eyesNotificationStatus: Boolean = false,
     val eyesNotificationTime: Int = 30,
     val drinkWaterNotificationStatus: Boolean = true,
@@ -15,10 +13,8 @@ data class SetupTimeState(
 ) {
     companion object {
         val Default = SetupTimeState(
-            morningTimerStart = "06:00",
-            morningTimerEnd = "09:00",
-            afternoonTimerStart = "12:00",
-            afternoonTimerEnd = "15:00",
+            startTime = "06:00",
+            endTime = "09:00",
         )
     }
 }

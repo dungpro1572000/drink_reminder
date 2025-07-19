@@ -14,10 +14,13 @@ import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.getTodayTime
 import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -39,7 +42,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             time =
                 time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
-        val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToHHmm()
+        val afternoonEndTime = workingTime.endTime.convertStringTimeToHHmm()
         val workingDay = workingTime.repeatDay
 
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -55,7 +58,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             }, AppConstant.ID_EXERCISE)
             return Result.success()
         } else {
-            val newDayTime = workingTime.morningStartTime.convertStringTimeToHHmm().apply {
+            val newDayTime = workingTime.startTime.convertStringTimeToHHmm().apply {
                 time =
                     time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
@@ -68,12 +71,17 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
 
             // calculate for record how many time can do exercise
             val exerciseTimes =
-                (minuteBetween2Date(workingTime.morningStartTime, workingTime.morningEndTime) +
-                        minuteBetween2Date(
-                            workingTime.afternoonStartTime,
-                            workingTime.afternoonEndTime
-                        )) / exerciseInfo.durationNotification
+                minuteBetween2Date(
+                    workingTime.startTime,
+                    workingTime.endTime
+                ) / exerciseInfo.durationNotification -1
 
+            appRepository.insertRecord(
+                RecordCompleteEntity(
+                    date = getTodayTime()
+                )
+            )
+            appRepository.updateTotalExerciseTime(exerciseTimes, getTodayTime())
 
             val worker = OneTimeWorkRequest.Builder(NextExerciseAlarmWorker::class.java)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

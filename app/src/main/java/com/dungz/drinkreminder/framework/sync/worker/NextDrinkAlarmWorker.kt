@@ -9,14 +9,18 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.getTodayTime
 import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +40,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
             if (drinkAlarm == null || workingTime == null) {
                 return Result.failure()
             }
-            val afternoonEndTime = workingTime.afternoonEndTime.convertStringTimeToHHmm()
+            val afternoonEndTime = workingTime.endTime.convertStringTimeToHHmm()
             val workingDay = workingTime.repeatDay
 
             val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -61,7 +65,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                     }, AppConstant.ID_DRINK_WATER
                 )
             } else {
-                val newDayTime = workingTime.morningStartTime.convertStringTimeToHHmm().apply {
+                val newDayTime = workingTime.startTime.convertStringTimeToHHmm().apply {
                     time = time + drinkAlarm.durationNotification * 60 * 1000
                 }
                 appRepository.setDrinkWaterInfo(
@@ -70,14 +74,20 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                         isChecked = false
                     )
                 )
+
+                appRepository.insertRecord(
+                    RecordCompleteEntity(
+                        date = getTodayTime()
+                    )
+                )
                 // calculate for record how many time can do exercise
                 val exerciseTimes =
-                    (minuteBetween2Date(workingTime.morningStartTime, workingTime.morningEndTime) +
-                            minuteBetween2Date(
-                                workingTime.afternoonStartTime,
-                                workingTime.afternoonEndTime
-                            )) / drinkAlarm.durationNotification
+                    minuteBetween2Date(
+                        workingTime.startTime,
+                        workingTime.endTime
+                    ) / drinkAlarm.durationNotification -1
 
+                appRepository.updateTotalDrinkTime(exerciseTimes, getTodayTime())
                 val worker = OneTimeWorkRequest.Builder(NextDrinkAlarmWorker::class.java)
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                     .setInitialDelay(4, TimeUnit.HOURS)

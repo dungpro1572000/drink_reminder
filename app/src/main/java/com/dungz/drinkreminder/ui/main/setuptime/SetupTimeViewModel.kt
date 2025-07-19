@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dungz.drinkreminder.data.repository.AppRepository
+import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
@@ -14,8 +15,11 @@ import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
 import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
 import com.dungz.drinkreminder.utilities.formatToString
+import com.dungz.drinkreminder.utilities.getTodayTime
+import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -60,10 +64,8 @@ class SetupTimeViewModel @Inject constructor(
         .stateIn(
             viewModelScope, SharingStarted.Eagerly,
             WorkingTime(
-                morningStartTime = "08:00",
-                afternoonEndTime = "17:00",
-                morningEndTime = "12:00",
-                afternoonStartTime = "13:00",
+                startTime = "08:00",
+                endTime = "12:00",
                 repeatDay = emptyList()
             )
         )
@@ -81,10 +83,8 @@ class SetupTimeViewModel @Inject constructor(
                 exerciseData
             ) { eyes, drink, exercise ->
                 SetupTimeState(
-                    morningTimerStart = workingTime.value?.morningStartTime ?: "08:00",
-                    morningTimerEnd = workingTime.value?.morningEndTime ?: "12:00",
-                    afternoonTimerStart = workingTime.value?.afternoonStartTime ?: "13:00",
-                    afternoonTimerEnd = workingTime.value?.afternoonEndTime ?: "17:00",
+                    startTime = workingTime.value?.startTime ?: "08:00",
+                    endTime = workingTime.value?.endTime ?: "12:00",
                     eyesNotificationStatus = eyeData.value?.isNotificationOn == true,
                     eyesNotificationTime = eyeData.value?.durationNotification ?: 30,
                     drinkWaterNotificationStatus = drinkData.value?.isNotificationOn == true,
@@ -109,19 +109,11 @@ class SetupTimeViewModel @Inject constructor(
     }
 
     fun updateMorningStartTime(time: String) {
-        _uiState.value = _uiState.value.copy(morningTimerStart = time)
+        _uiState.value = _uiState.value.copy(startTime = time)
     }
 
     fun updateMorningEndTime(time: String) {
-        _uiState.value = _uiState.value.copy(morningTimerEnd = time)
-    }
-
-    fun updateAfternoonStartTime(time: String) {
-        _uiState.value = _uiState.value.copy(afternoonTimerStart = time)
-    }
-
-    fun updateAfternoonEndTime(time: String) {
-        _uiState.value = _uiState.value.copy(afternoonTimerEnd = time)
+        _uiState.value = _uiState.value.copy(endTime = time)
     }
 
     fun updateEyesNotificationStatus(status: Boolean) {
@@ -153,17 +145,15 @@ class SetupTimeViewModel @Inject constructor(
     }
 
     fun saveSetupTime() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val workingTime = WorkingTimeModel(
-                morningStartTime = _uiState.value.morningTimerStart,
-                morningEndTime = _uiState.value.morningTimerEnd,
-                afternoonStartTime = _uiState.value.afternoonTimerStart,
-                afternoonEndTime = _uiState.value.afternoonTimerEnd,
+                startTime = _uiState.value.startTime,
+                endTime = _uiState.value.endTime,
                 repeatDay = _uiState.value.repeatDay
             )
             appRepository.setWorkTime(workingTime)
 
-            val nextEyesNotification = _uiState.value.morningTimerStart.convertStringTimeToHHmm()
+            val nextEyesNotification = _uiState.value.startTime.convertStringTimeToHHmm()
                 .apply {
                     time = time + _uiState.value.eyesNotificationTime * 60 * 1000
                 }
@@ -182,7 +172,27 @@ class SetupTimeViewModel @Inject constructor(
                 "Eyes next notification time: ${eyesData.nextNotificationTime}"
             )
 
-            val drinkNotificationTime = _uiState.value.morningTimerStart.convertStringTimeToHHmm()
+            val totalMorningMinutes =
+                minuteBetween2Date(workingTime.startTime, workingTime.endTime)
+
+            appRepository.insertRecord(RecordCompleteEntity(getTodayTime()))
+            appRepository.updateTotalExerciseTime(
+                (totalMorningMinutes / (exerciseData.value?.durationNotification
+                    ?: 55)),
+                getTodayTime()
+            )
+            appRepository.updateTotalDrinkTime(
+                (totalMorningMinutes / (drinkData.value?.durationNotification
+                    ?: 40)),
+                getTodayTime()
+            )
+            appRepository.updateTotalEyesRelaxTime(
+                (totalMorningMinutes / (eyeData.value?.durationNotification
+                    ?: 35)),
+                getTodayTime()
+            )
+
+            val drinkNotificationTime = _uiState.value.startTime.convertStringTimeToHHmm()
                 .apply {
                     time = time + _uiState.value.drinkWaterNotificationTime * 60 * 1000
                 }
@@ -202,7 +212,7 @@ class SetupTimeViewModel @Inject constructor(
             }, AppConstant.ID_DRINK_WATER)
 
             val nextExerciseNotification =
-                _uiState.value.morningTimerStart.convertStringTimeToHHmm()
+                _uiState.value.startTime.convertStringTimeToHHmm()
                     .apply {
                         time = time + _uiState.value.exerciseNotificationTime * 60 * 1000
                     }

@@ -72,10 +72,8 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override suspend fun setWorkTime(workingTimeModel: WorkingTimeModel) {
         appDb.workingTimeDao().insertWorkingTime(
             WorkingTime(
-                morningStartTime = workingTimeModel.morningStartTime,
-                morningEndTime = workingTimeModel.morningEndTime,
-                afternoonStartTime = workingTimeModel.afternoonStartTime,
-                afternoonEndTime = workingTimeModel.afternoonEndTime,
+                startTime = workingTimeModel.startTime,
+                endTime = workingTimeModel.endTime,
                 repeatDay = workingTimeModel.repeatDay,
             )
         )
@@ -185,7 +183,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getMorningStartTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.morningStartTime?.convertStringTimeToHHmm() ?: Date().apply {
+            it?.startTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }
@@ -194,25 +192,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
     override fun getMorningEndTime(): Flow<Date> {
         val workingTime = appDb.workingTimeDao().getWorkingTime()
         return workingTime.map {
-            it?.morningEndTime?.convertStringTimeToHHmm() ?: Date().apply {
-                time = 0 // Default to epoch if no time is set
-            }
-        }
-    }
-
-    override fun getAfternoonStartTime(): Flow<Date> {
-        val workingTime = appDb.workingTimeDao().getWorkingTime()
-        return workingTime.map {
-            it?.afternoonStartTime?.convertStringTimeToHHmm() ?: Date().apply {
-                time = 0 // Default to epoch if no time is set
-            }
-        }
-    }
-
-    override fun getAfternoonEndTime(): Flow<Date> {
-        val workingTime = appDb.workingTimeDao().getWorkingTime()
-        return workingTime.map {
-            it?.afternoonEndTime?.convertStringTimeToHHmm() ?: Date().apply {
+            it?.endTime?.convertStringTimeToHHmm() ?: Date().apply {
                 time = 0 // Default to epoch if no time is set
             }
         }

@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey
 data class RecordCompleteEntity(
     @PrimaryKey()
     val date: String,
-    val drinkTime: Int,
-    val eyesRelaxTime: Int,
-    val exerciseTime: Int,
-    val totalDrinkTime: Int,
-    val totalEyesRelaxTime: Int,
-    val totalExerciseTime: Int,
+    val drinkTime: Int = 0,
+    val eyesRelaxTime: Int = 0,
+    val exerciseTime: Int = 0,
+    val totalDrinkTime: Int = 0,
+    val totalEyesRelaxTime: Int = 0,
+    val totalExerciseTime: Int = 0,
 )

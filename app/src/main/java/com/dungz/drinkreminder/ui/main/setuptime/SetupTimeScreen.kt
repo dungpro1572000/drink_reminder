@@ -159,27 +159,13 @@ fun SetupTimeScreen(
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
-                                        val startMorningTime =
-                                            setUpTimeState.value.morningTimerStart.convertStringTimeToHHmm()
-                                        val endMorningTime =
-                                            setUpTimeState.value.morningTimerEnd.convertStringTimeToHHmm()
-                                        val afternoonStartTime =
-                                            setUpTimeState.value.afternoonTimerStart.convertStringTimeToHHmm()
-                                        val afternoonEndTime =
-                                            setUpTimeState.value.afternoonTimerEnd.convertStringTimeToHHmm()
+                                        val startTime =
+                                            setUpTimeState.value.startTime.convertStringTimeToHHmm()
+                                        val endTime =
+                                            setUpTimeState.value.endTime.convertStringTimeToHHmm()
 
-                                        if (endMorningTime.before(startMorningTime) || afternoonStartTime.before(
-                                                endMorningTime
-                                            ) || afternoonEndTime.before(afternoonStartTime)
+                                        if (endTime.before(startTime)
                                         ) {
-                                            Log.d(
-                                                "DungNT354",
-                                                "${endMorningTime.before(startMorningTime)} and ${
-                                                    afternoonStartTime.before(
-                                                        endMorningTime
-                                                    )
-                                                } and ${afternoonEndTime.before(afternoonStartTime)}"
-                                            )
                                             coroutineScope.launch {
                                                 snackBarState.showSnackbar(
                                                     message = "Please check your time setup again",
@@ -234,14 +220,6 @@ fun SetupTimeScreen(
                             SetupTimeType.MorningEnd -> {
                                 viewModel.updateMorningEndTime(formatTime(timePickerState))
                             }
-
-                            SetupTimeType.AfternoonStart -> {
-                                viewModel.updateAfternoonStartTime(formatTime(timePickerState))
-                            }
-
-                            SetupTimeType.AfternoonEnd -> {
-                                viewModel.updateAfternoonEndTime(formatTime(timePickerState))
-                            }
                         }
                     }, content = {
                         TimeInput(state = timePickerState)
@@ -272,15 +250,15 @@ fun SetupTimeScreen(
 
                     TextItem(
                         title = "Start Time",
-                        value = setUpTimeState.value.morningTimerStart.convertStringTimeToHHmm()
+                        value = setUpTimeState.value.startTime.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningStart
                         timePickerState.hour =
-                            setUpTimeState.value.morningTimerStart.substringBefore(":").toInt()
+                            setUpTimeState.value.startTime.substringBefore(":").toInt()
                         timePickerState.minute =
-                            setUpTimeState.value.morningTimerStart.substringAfter(":").toInt()
+                            setUpTimeState.value.startTime.substringAfter(":").toInt()
                     }
                 }
                 Line(Modifier.padding(vertical = 6.dp))
@@ -291,67 +269,15 @@ fun SetupTimeScreen(
                 ) {
                     TextItem(
                         title = "End Time",
-                        value = setUpTimeState.value.morningTimerEnd.convertStringTimeToHHmm()
+                        value = setUpTimeState.value.endTime.convertStringTimeToHHmm()
                             .formatToString()
                     ) {
                         showTimeDialog.value = true
                         setupTimeType.value = SetupTimeType.MorningEnd
                         timePickerState.hour =
-                            setUpTimeState.value.morningTimerEnd.substringBefore(":").toInt()
+                            setUpTimeState.value.endTime.substringBefore(":").toInt()
                         timePickerState.minute =
-                            setUpTimeState.value.morningTimerEnd.substringAfter(":").toInt()
-                    }
-                }
-            }
-            Column(
-                Modifier
-                    .padding(vertical = 12.dp, horizontal = 16.dp)
-                    .border(
-                        width = 1.dp,
-                        color = LocalBaseColorScheme.current.borderColor,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clip(shape = RoundedCornerShape(12.dp))
-                    .padding(vertical = 6.dp, horizontal = 12.dp)
-            ) {
-                Text("Afternoon Time", style = TitleTextStyle, modifier = Modifier.padding(8.dp))
-                Line(Modifier.padding(vertical = 6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    TextItem(
-                        title = "Start working time",
-                        value = setUpTimeState.value.afternoonTimerStart.convertStringTimeToHHmm()
-                            .formatToString()
-                    ) {
-                        showTimeDialog.value = true
-                        setupTimeType.value = SetupTimeType.AfternoonStart
-                        timePickerState.hour =
-                            setUpTimeState.value.afternoonTimerStart.substringBefore(":").toInt()
-                        timePickerState.minute =
-                            setUpTimeState.value.afternoonTimerStart.substringAfter(":").toInt()
-                    }
-                }
-                Line(Modifier.padding(vertical = 6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TextItem(
-                        title = "End working time",
-                        value = setUpTimeState.value.afternoonTimerEnd.convertStringTimeToHHmm()
-                            .formatToString()
-                    ) {
-                        showTimeDialog.value = true
-                        setupTimeType.value = SetupTimeType.AfternoonEnd
-                        timePickerState.hour =
-                            setUpTimeState.value.afternoonTimerEnd.substringBefore(":").toInt()
-                        timePickerState.minute =
-                            setUpTimeState.value.afternoonTimerEnd.substringAfter(":").toInt()
+                            setUpTimeState.value.endTime.substringAfter(":").toInt()
                     }
                 }
             }
@@ -626,5 +552,5 @@ fun TimePickerDialog(
 }
 
 enum class SetupTimeType {
-    MorningStart, MorningEnd, AfternoonStart, AfternoonEnd
+    MorningStart, MorningEnd,
 }

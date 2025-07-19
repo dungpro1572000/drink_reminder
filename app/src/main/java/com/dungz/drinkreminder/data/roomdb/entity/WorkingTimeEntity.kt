@@ -8,10 +8,8 @@ import androidx.room.TypeConverter
 data class WorkingTime(
     @PrimaryKey
     val id: Int = 0,
-    val morningStartTime: String,
-    val morningEndTime: String,
-    val afternoonStartTime: String,
-    val afternoonEndTime: String,
+    val startTime: String,
+    val endTime: String,
     val repeatDay: List<Int>,
 )
 
