@@ -27,8 +27,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +53,7 @@ import com.dungz.drinkreminder.ui.widget.DefaultButton
 import com.dungz.drinkreminder.ui.widget.InformationCard
 import com.dungz.drinkreminder.ui.widget.InformationCardType
 import com.dungz.drinkreminder.utilities.AppConstant
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,15 +62,18 @@ fun HomeScreen(
     navigateToPage: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val showBottomSheetState = rememberSaveable {
         mutableStateOf(true)
     }
-    val eyesRelaxFlow = viewModel.eyesRelaxFlow.collectAsState()
-    val drinkWaterFlow = viewModel.drinkWaterFlow.collectAsState()
-    val exerciseFlow = viewModel.exerciseFlow.collectAsState()
-    val workingTime = viewModel.workingTime.collectAsState()
-
+    val homeScreenState = viewModel.homeScreenState.collectAsState()
     val bottomSheetState = rememberModalBottomSheetState()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+
+        }
+    }
     if (showBottomSheetState.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheetState.value = false },
@@ -148,13 +154,13 @@ fun HomeScreen(
         }
         Spacer(Modifier.height(24.dp))
         InformationCard(
-            startTime = exerciseFlow.value?.nextNotificationTime ?: "",
-            onTimeEnd = {},
             buttonInCardClicked = {
                 showBottomSheetState.value = true
-                viewModel.saveRecordExercise()
+                viewModel.setUpAlarm()
             },
             type = InformationCardType.EXERCISE,
+            incomingTime = homeScreenState.value.exerciseTime,
+            timeLeft = homeScreenState.value.exerciseTimeLeft,
             icon = {
                 Icon(
                     modifier = Modifier.padding(12.dp),
@@ -163,15 +169,15 @@ fun HomeScreen(
                     contentDescription = null
                 )
             },
-            isChecked = exerciseFlow.value?.isChecked ?: false
+            isChecked = homeScreenState.value.isCheckedExercise,
         )
         Spacer(Modifier.height(12.dp))
         InformationCard(
-            startTime = drinkWaterFlow.value?.nextNotificationTime ?: "",
-            onTimeEnd = {},
             buttonInCardClicked = {
-                showBottomSheetState.value = true
-                viewModel.saveRecordDrink()
+                viewModel.setUpAlarm()
+//                showBottomSheetState.value = true
+//                viewModel.saveRecordDrink()
+
             },
             type = InformationCardType.DRINK,
             icon = {
@@ -182,12 +188,12 @@ fun HomeScreen(
                     contentDescription = null
                 )
             },
-            isChecked = drinkWaterFlow.value?.isChecked ?: false
+            incomingTime = homeScreenState.value.drinkTime,
+            timeLeft = homeScreenState.value.drinkTimeLeft,
+            isChecked = homeScreenState.value.isCheckedDrink
         )
         Spacer(Modifier.height(12.dp))
         InformationCard(
-            startTime = eyesRelaxFlow.value?.nextNotificationTime ?: "",
-            onTimeEnd = {},
             type = InformationCardType.RELAX_EYES,
             buttonInCardClicked = {
                 showBottomSheetState.value = true
@@ -203,7 +209,9 @@ fun HomeScreen(
                     contentDescription = null
                 )
             },
-            isChecked = eyesRelaxFlow.value?.isChecked ?: false
+            isChecked = homeScreenState.value.isCheckedEyes,
+            incomingTime = homeScreenState.value.eyesRelaxTime,
+            timeLeft = homeScreenState.value.eyesRelaxTimeLeft
         )
         Spacer(Modifier.height(24.dp))
         DefaultButton(

@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -32,9 +32,11 @@ import kotlinx.coroutines.launch
 class SetupTimeViewModel @Inject constructor(
     private val appRepository: AppRepository,
     private val alarmScheduler: AlarmScheduler
-) :
-    ViewModel() {
-    var originalSetupTimeState = SetupTimeState.Default
+) : ViewModel() {
+
+     var originalSetupTimeState = SetupTimeState.Default
+
+    // Initialize with default values to avoid nullability issues
     val eyeData = appRepository.getEyesInfo().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -43,63 +45,71 @@ class SetupTimeViewModel @Inject constructor(
             durationNotification = 35
         )
     )
+
     val drinkData = appRepository.getDrinkWaterInfo().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         DrinkWaterModel(
             isNotificationOn = false,
-            durationNotification = 60
+            durationNotification = 40
         )
     )
+
     val exerciseData = appRepository.getExerciseInfo().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         ExerciseModel(
             isNotificationOn = false,
-            durationNotification = 30
+            durationNotification = 60
         )
     )
 
-    val workingTime = appRepository.getWorkingTime()
-        .stateIn(
-            viewModelScope, SharingStarted.Eagerly,
-            WorkingTime(
-                startTime = "08:00",
-                endTime = "12:00",
-                repeatDay = emptyList()
-            )
+    val workingTime = appRepository.getWorkingTime().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        WorkingTime(
+            startTime = "08:00",
+            endTime = "12:00",
+            repeatDay = emptyList()
         )
-
+    )
 
     private val _uiState = MutableStateFlow(SetupTimeState.Default)
-    val uiState: StateFlow<SetupTimeState> = _uiState
+    val uiState: StateFlow<SetupTimeState> = _uiState.asStateFlow()
 
+    // Combined flow for observing all data changes
+    private val combinedDataFlow = combine(
+        workingTime,
+        eyeData,
+        drinkData,
+        exerciseData
+    ) { workingTime, eyes, drink, exercise ->
+        if (workingTime != null && eyes != null && drink != null && exercise != null) {
+            SetupTimeState(
+                startTime = workingTime.startTime,
+                endTime = workingTime.endTime,
+                eyesNotificationStatus = eyes.isNotificationOn,
+                eyesNotificationTime = eyes.durationNotification,
+                drinkWaterNotificationStatus = drink.isNotificationOn,
+                drinkWaterNotificationTime = drink.durationNotification,
+                exerciseNotificationStatus = exercise.isNotificationOn,
+                exerciseNotificationTime = exercise.durationNotification,
+                repeatDay = workingTime.repeatDay
+            )
+        } else {
+            SetupTimeState.Default
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        SetupTimeState.Default
+    )
 
     fun initialize() {
         viewModelScope.launch {
-            combine(
-                eyeData,
-                drinkData,
-                exerciseData
-            ) { eyes, drink, exercise ->
-                SetupTimeState(
-                    startTime = workingTime.value?.startTime ?: "08:00",
-                    endTime = workingTime.value?.endTime ?: "12:00",
-                    eyesNotificationStatus = eyeData.value?.isNotificationOn == true,
-                    eyesNotificationTime = eyeData.value?.durationNotification ?: 30,
-                    drinkWaterNotificationStatus = drinkData.value?.isNotificationOn == true,
-                    drinkWaterNotificationTime = drinkData.value?.durationNotification ?: 60,
-                    exerciseNotificationStatus = exerciseData.value?.isNotificationOn == true,
-                    exerciseNotificationTime = exerciseData.value?.durationNotification ?: 65,
-                    repeatDay = workingTime.value?.repeatDay ?: emptyList()
-                )
-            }.stateIn(
-                viewModelScope,
-                SharingStarted.Eagerly,
-                SetupTimeState.Default
-            ).collectLatest {
-                _uiState.value = it
-                originalSetupTimeState = it
+            combinedDataFlow.collect { state ->
+                _uiState.value = state
+                originalSetupTimeState = state
             }
         }
     }
@@ -108,6 +118,36 @@ class SetupTimeViewModel @Inject constructor(
         _uiState.value = originalSetupTimeState
     }
 
+    // Batch state updates to reduce recomposition
+    fun updateTimeRange(startTime: String, endTime: String) {
+        _uiState.value = _uiState.value.copy(
+            startTime = startTime,
+            endTime = endTime
+        )
+    }
+
+    fun updateEyesSettings(status: Boolean, time: Int) {
+        _uiState.value = _uiState.value.copy(
+            eyesNotificationStatus = status,
+            eyesNotificationTime = time
+        )
+    }
+
+    fun updateDrinkWaterSettings(status: Boolean, time: Int) {
+        _uiState.value = _uiState.value.copy(
+            drinkWaterNotificationStatus = status,
+            drinkWaterNotificationTime = time
+        )
+    }
+
+    fun updateExerciseSettings(status: Boolean, time: Int) {
+        _uiState.value = _uiState.value.copy(
+            exerciseNotificationStatus = status,
+            exerciseNotificationTime = time
+        )
+    }
+
+    // Individual update methods (kept for backward compatibility)
     fun updateMorningStartTime(time: String) {
         _uiState.value = _uiState.value.copy(startTime = time)
     }
@@ -145,92 +185,129 @@ class SetupTimeViewModel @Inject constructor(
     }
 
     fun saveSetupTime() {
+        val currentState = _uiState.value
         viewModelScope.launch(Dispatchers.IO) {
-            val workingTime = WorkingTimeModel(
-                startTime = _uiState.value.startTime,
-                endTime = _uiState.value.endTime,
-                repeatDay = _uiState.value.repeatDay
-            )
-            appRepository.setWorkTime(workingTime)
+            try {
+                // Save working time
+                saveWorkingTime(currentState)
 
-            val nextEyesNotification = _uiState.value.startTime.convertStringTimeToHHmm()
-                .apply {
-                    time = time + _uiState.value.eyesNotificationTime * 60 * 1000
-                }
-            val eyesData = EyesMode(
-                isNotificationOn = _uiState.value.eyesNotificationStatus,
-                durationNotification = _uiState.value.eyesNotificationTime,
-                nextNotificationTime = nextEyesNotification.formatToString()
-            )
+                // Calculate total morning minutes once
+                val totalMorningMinutes = minuteBetween2Date(
+                    currentState.startTime,
+                    currentState.endTime
+                )
 
-            appRepository.setEyeInfo(eyesData)
-            alarmScheduler.setupAlarmDate(nextEyesNotification, Bundle().apply {
-                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EYES_RELAX)
-            }, AppConstant.ID_EYES_RELAX)
-            Log.d(
-                "SetupTimeViewModel",
-                "Eyes next notification time: ${eyesData.nextNotificationTime}"
-            )
+                // Insert record for today
+                appRepository.insertRecord(RecordCompleteEntity(getTodayTime()))
 
-            val totalMorningMinutes =
-                minuteBetween2Date(workingTime.startTime, workingTime.endTime)
+                // Save notification settings and setup alarms
+                saveEyesSettings(currentState, totalMorningMinutes)
+                saveDrinkWaterSettings(currentState, totalMorningMinutes)
+                saveExerciseSettings(currentState, totalMorningMinutes)
 
-            appRepository.insertRecord(RecordCompleteEntity(getTodayTime()))
-            appRepository.updateTotalExerciseTime(
-                (totalMorningMinutes / (exerciseData.value?.durationNotification
-                    ?: 55)),
-                getTodayTime()
-            )
-            appRepository.updateTotalDrinkTime(
-                (totalMorningMinutes / (drinkData.value?.durationNotification
-                    ?: 40)),
-                getTodayTime()
-            )
-            appRepository.updateTotalEyesRelaxTime(
-                (totalMorningMinutes / (eyeData.value?.durationNotification
-                    ?: 35)),
-                getTodayTime()
-            )
-
-            val drinkNotificationTime = _uiState.value.startTime.convertStringTimeToHHmm()
-                .apply {
-                    time = time + _uiState.value.drinkWaterNotificationTime * 60 * 1000
-                }
-            val drinkData = DrinkWaterModel(
-                isNotificationOn = _uiState.value.drinkWaterNotificationStatus,
-                durationNotification = _uiState.value.drinkWaterNotificationTime,
-                nextNotificationTime = drinkNotificationTime.formatToString()
-            )
-
-            Log.d(
-                "SetupTimeViewModel",
-                "Drink water next notification time: ${drinkData.nextNotificationTime}"
-            )
-            appRepository.setDrinkWaterInfo(drinkData)
-            alarmScheduler.setupAlarmDate(drinkNotificationTime, Bundle().apply {
-                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_DRINK_WATER)
-            }, AppConstant.ID_DRINK_WATER)
-
-            val nextExerciseNotification =
-                _uiState.value.startTime.convertStringTimeToHHmm()
-                    .apply {
-                        time = time + _uiState.value.exerciseNotificationTime * 60 * 1000
-                    }
-            val exerciseData = ExerciseModel(
-                isNotificationOn = _uiState.value.exerciseNotificationStatus,
-                durationNotification = _uiState.value.exerciseNotificationTime,
-                nextNotificationTime = nextExerciseNotification.formatToString()
-            )
-            appRepository.setExerciseInfo(exerciseData)
-            alarmScheduler.setupAlarmDate(nextExerciseNotification, Bundle().apply {
-                putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EXERCISE)
-            }, AppConstant.ID_EXERCISE)
-            Log.d(
-                "SetupTimeViewModel",
-                "Exercise next notification time: ${exerciseData.nextNotificationTime}"
-            )
-
-            Log.d("SetupTimeViewModel", "Setup time saved: ${_uiState.value.repeatDay}")
+                Log.d("SetupTimeViewModel", "Setup completed successfully for days: ${currentState.repeatDay}")
+            } catch (e: Exception) {
+                Log.e("SetupTimeViewModel", "Error saving setup", e)
+            }
         }
+    }
+
+    private suspend fun saveWorkingTime(state: SetupTimeState) {
+        val workingTime = WorkingTimeModel(
+            startTime = state.startTime,
+            endTime = state.endTime,
+            repeatDay = state.repeatDay
+        )
+        appRepository.setWorkTime(workingTime)
+    }
+
+    private suspend fun saveEyesSettings(state: SetupTimeState, totalMinutes: Int) {
+        val nextNotificationTime = state.startTime.convertStringTimeToHHmm().apply {
+            time = time + state.eyesNotificationTime * 60 * 1000
+        }
+
+        val eyesData = EyesMode(
+            isNotificationOn = state.eyesNotificationStatus,
+            durationNotification = state.eyesNotificationTime,
+            nextNotificationTime = nextNotificationTime.formatToString()
+        )
+
+        appRepository.setEyeInfo(eyesData)
+
+        // Only schedule alarm if notifications are enabled
+        if (state.eyesNotificationStatus) {
+            alarmScheduler.setupAlarmDate(
+                nextNotificationTime,
+                Bundle().apply { putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EYES_RELAX) },
+                AppConstant.ID_EYES_RELAX
+            )
+        }
+
+        // Update total time calculation
+        val eyeDataValue = eyeData.value
+        val totalEyesTime = totalMinutes / (eyeDataValue?.durationNotification ?: 35)
+        appRepository.updateTotalEyesRelaxTime(totalEyesTime, getTodayTime())
+
+        Log.d("SetupTimeViewModel", "Eyes next notification: ${eyesData.nextNotificationTime}")
+    }
+
+    private suspend fun saveDrinkWaterSettings(state: SetupTimeState, totalMinutes: Int) {
+        val nextNotificationTime = state.startTime.convertStringTimeToHHmm().apply {
+            time = time + state.drinkWaterNotificationTime * 60 * 1000
+        }
+
+        val drinkWaterData = DrinkWaterModel(
+            isNotificationOn = state.drinkWaterNotificationStatus,
+            durationNotification = state.drinkWaterNotificationTime,
+            nextNotificationTime = nextNotificationTime.formatToString()
+        )
+
+        appRepository.setDrinkWaterInfo(drinkWaterData)
+
+        // Only schedule alarm if notifications are enabled
+        if (state.drinkWaterNotificationStatus) {
+            alarmScheduler.setupAlarmDate(
+                nextNotificationTime,
+                Bundle().apply { putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_DRINK_WATER) },
+                AppConstant.ID_DRINK_WATER
+            )
+        }
+
+        // Update total time calculation
+        val drinkDataValue = drinkData.value
+        val totalDrinkTime = totalMinutes / (drinkDataValue?.durationNotification ?: 60)
+        appRepository.updateTotalDrinkTime(totalDrinkTime, getTodayTime())
+
+        Log.d("SetupTimeViewModel", "Drink water next notification: ${drinkWaterData.nextNotificationTime}")
+    }
+
+    private suspend fun saveExerciseSettings(state: SetupTimeState, totalMinutes: Int) {
+        val nextNotificationTime = state.startTime.convertStringTimeToHHmm().apply {
+            time = time + state.exerciseNotificationTime * 60 * 1000
+        }
+
+        val exerciseDataModel = ExerciseModel(
+            isNotificationOn = state.exerciseNotificationStatus,
+            durationNotification = state.exerciseNotificationTime,
+            nextNotificationTime = nextNotificationTime.formatToString()
+        )
+
+        appRepository.setExerciseInfo(exerciseDataModel)
+
+        // Only schedule alarm if notifications are enabled
+        if (state.exerciseNotificationStatus) {
+            alarmScheduler.setupAlarmDate(
+                nextNotificationTime,
+                Bundle().apply { putInt(AppConstant.ALARM_BUNDLE_ID, AppConstant.ID_EXERCISE) },
+                AppConstant.ID_EXERCISE
+            )
+        }
+
+        // Update total time calculation
+        val exerciseDataValue = exerciseData.value
+        val totalExerciseTime = totalMinutes / (exerciseDataValue?.durationNotification ?: 30)
+        appRepository.updateTotalExerciseTime(totalExerciseTime, getTodayTime())
+
+        Log.d("SetupTimeViewModel", "Exercise next notification: ${exerciseDataModel.nextNotificationTime}")
     }
 }

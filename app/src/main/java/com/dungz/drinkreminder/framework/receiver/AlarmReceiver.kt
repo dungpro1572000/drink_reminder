@@ -33,13 +33,15 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent == null) return
-       if (context == null) return
+        if (context == null) return
         if (intent.action == AppConstant.ALARM_ACTION_RECEIVER) {
+            val pendingResult = goAsync()
             val coroutineScope = CoroutineScope(dispatcher)
 
             val notificationManager = NotificationManager(context)
             val data = intent.getIntExtra(AppConstant.ALARM_BUNDLE_ID, -1)
             if (data < 0) return
+            Log.d(TAG, "Alarm received with ID: $data")
             coroutineScope.launch {
                 val today = LocalDate.now()
                 val dayOfWeek = today.dayOfWeek.value
@@ -60,6 +62,9 @@ class AlarmReceiver : BroadcastReceiver() {
                                     )
                                 )
                             }
+                        } else {
+                            // If the drink water notification is off, we can skip showing the notification
+                            Log.d(TAG, "Drink water notification is turned off")
                         }
                         WorkManager.getInstance(context).enqueue(NextDrinkAlarmWorker.worker)
                     }
@@ -80,6 +85,9 @@ class AlarmReceiver : BroadcastReceiver() {
                                     )
                                 )
                             }
+                        } else {
+                            // If the eyes relax notification is off, we can skip showing the notification
+                            Log.d(TAG, "Eyes relax notification is turned off")
                         }
                         WorkManager.getInstance(context).enqueue(NextEyesAlarmWorker.startWorker)
                     }
@@ -100,6 +108,9 @@ class AlarmReceiver : BroadcastReceiver() {
                                     )
                                 )
                             }
+                        } else {
+                            // If the exercise notification is off, we can skip showing the notification
+                            Log.d(TAG, "Exercise notification is turned off")
                         }
                         WorkManager.getInstance(context).enqueue(NextExerciseAlarmWorker.worker)
                     }
@@ -108,7 +119,9 @@ class AlarmReceiver : BroadcastReceiver() {
                         Log.w(TAG, "Unknown alarm ID: $data")
                     }
                 }
+                pendingResult.finish()
             }
+
         }
     }
 

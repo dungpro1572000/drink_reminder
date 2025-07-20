@@ -4,6 +4,10 @@ import android.icu.util.Calendar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
@@ -48,7 +52,7 @@ fun minuteBetween2Date(start: String, end: String): Int {
     return abs(diffInMillis / (1000 * 60)).toInt() // Convert milliseconds to minutes
 }
 
-fun String.convertTimeStringToInts(): Pair<Int, Int> {
+fun String.convertTimeStringToInts(): Pair<Int?, Int?> {
     val parts = this.split(":")
     if (parts.size == 2) {
         try {
@@ -57,11 +61,11 @@ fun String.convertTimeStringToInts(): Pair<Int, Int> {
             return Pair(hour, minute)
         } catch (e: NumberFormatException) {
             // Handle cases where conversion to Int fails (e.g., "ab:cd")
-            return 0 to 0
+            return null to null
         }
     }
     // Handle invalid time string format
-    return 0 to 0
+    return null to null
 }
 
 fun Date.formatToString(): String {
@@ -72,4 +76,27 @@ fun Date.formatToString(): String {
 fun getTodayTime(): String {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return dateFormat.format(Date())
+}
+
+fun formatLongToStringTime(seconds: Int): String {
+    val h = seconds / 3600
+    val m = (seconds % 3600) / 60
+    val s = seconds % 60
+    return String.format(Locale.US, "%02d:%02d:%02d", h, m, s)
+}
+
+fun calcTimeLeft(timeString: String?): Long {
+    return try {
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        val localTime = LocalTime.parse(timeString ?: "", formatter)
+
+        var target =
+            now.withHour(localTime.hour).withMinute(localTime.minute).withSecond(0).withNano(0)
+        if (now > target) target = target.plusDays(1)
+
+        Duration.between(now, target).seconds
+    } catch (e: Exception) {
+        0L
+    }
 }

@@ -22,28 +22,11 @@ fun countdownFlow(
     while (true) {
         val now = LocalTime.now()
         val startTime = LocalTime.of(startHour, startMinute)
-
-        val secondsLeftSinceStart = Duration.between(startTime, now).seconds
         val duration = if (now.isBefore(startTime)) {
             Duration.between(now, startTime).seconds
         } else {
             24 * 60 * 60 - Duration.between(startTime, now).seconds
         }
-//        val intervalsPassed = if (minutesSinceStart >= 0) {
-//            minutesSinceStart / intervalMinutes
-//        } else {
-//            -1
-//        }
-//
-//        val nextTime = if (minutesSinceStart < 0) {
-//            startTime
-//        } else {
-//            startTime.plusMinutes((intervalsPassed + 1) * intervalMinutes)
-//        }
-//
-//        val duration = Duration.between(now, nextTime)
-//        val minutesLeft = duration.toMinutes()
-//        val secondsLeft = duration.seconds % 60
         val hour = duration / 60 / 60
         val minutes = (duration - hour * 60 * 60) / 60
         val seconds = duration - hour * 60 * 60 - minutes * 60
