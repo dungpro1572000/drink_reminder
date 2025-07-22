@@ -48,7 +48,7 @@ interface AppRepository {
     fun getWorkingTime(): Flow<WorkingTime?>
 
     //Record
-    suspend fun insertRecord(recordCompleteModel: RecordCompleteEntity)
+    suspend fun insertRecord(recordCompleteEntity: RecordCompleteEntity)
     fun getRecordByDate(date: String): Flow<RecordCompleteModel?>
     fun get5DayDrinkRecord(): Flow<List<Record5DaysDrink>>
     fun get5DayEyesRelaxRecord(): Flow<List<Record5DaysEyesRelax>>

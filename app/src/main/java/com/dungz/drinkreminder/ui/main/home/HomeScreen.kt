@@ -156,7 +156,7 @@ fun HomeScreen(
         InformationCard(
             buttonInCardClicked = {
                 showBottomSheetState.value = true
-                viewModel.setUpAlarm()
+                viewModel.saveRecordExercise()
             },
             type = InformationCardType.EXERCISE,
             incomingTime = homeScreenState.value.exerciseTime,
@@ -174,9 +174,8 @@ fun HomeScreen(
         Spacer(Modifier.height(12.dp))
         InformationCard(
             buttonInCardClicked = {
-                viewModel.setUpAlarm()
-//                showBottomSheetState.value = true
-//                viewModel.saveRecordDrink()
+                showBottomSheetState.value = true
+                viewModel.saveRecordDrink()
 
             },
             type = InformationCardType.DRINK,
@@ -197,9 +196,7 @@ fun HomeScreen(
             type = InformationCardType.RELAX_EYES,
             buttonInCardClicked = {
                 showBottomSheetState.value = true
-                // save db daya
                 viewModel.saveRecordEyesRelax()
-
             },
             icon = {
                 Icon(
@@ -218,7 +215,6 @@ fun HomeScreen(
             modifier = Modifier
                 .width(194.dp),
             onClick = {
-//                viewModel.setUpTime()
                 navigateToPage.invoke()
             }) {
             Text("Set up Time", style = TextInPrimaryButton)

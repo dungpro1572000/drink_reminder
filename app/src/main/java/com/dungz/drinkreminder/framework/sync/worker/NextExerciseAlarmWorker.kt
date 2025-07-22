@@ -84,7 +84,6 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             appRepository.updateTotalExerciseTime(exerciseTimes, getTodayTime())
 
             val worker = OneTimeWorkRequest.Builder(NextExerciseAlarmWorker::class.java)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setInitialDelay(4, TimeUnit.HOURS)
                 .build()
 

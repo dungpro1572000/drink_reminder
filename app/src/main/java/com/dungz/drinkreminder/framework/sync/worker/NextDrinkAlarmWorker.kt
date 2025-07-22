@@ -90,7 +90,6 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 appRepository.updateTotalDrinkTime(exerciseTimes, getTodayTime())
                 val worker = OneTimeWorkRequest.Builder(NextDrinkAlarmWorker::class.java)
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .setInitialDelay(4, TimeUnit.HOURS)
                     .build()
 
                 WorkManager.getInstance(appContext).enqueue(worker)

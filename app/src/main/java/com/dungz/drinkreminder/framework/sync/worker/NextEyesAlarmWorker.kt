@@ -19,8 +19,6 @@ import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -74,7 +72,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
                 minuteBetween2Date(
                     workingTime.startTime,
                     workingTime.endTime
-                ) / eyesRelaxInfo.durationNotification -1
+                ) / eyesRelaxInfo.durationNotification - 1
 
             appRepository.insertRecord(
                 RecordCompleteEntity(
@@ -86,8 +84,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
                 OneTimeWorkRequest.Builder(NextEyesAlarmWorker::class.java).setInitialDelay(
                     4,
                     TimeUnit.HOURS
-                )
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
+                ).build()
             WorkManager.getInstance(context = appContext).enqueue(worker)
         }
         return Result.success()
