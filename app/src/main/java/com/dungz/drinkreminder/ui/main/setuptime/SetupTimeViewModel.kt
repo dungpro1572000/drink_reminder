@@ -9,7 +9,7 @@ import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
-import com.dungz.drinkreminder.data.roomdb.model.EyesMode
+import com.dungz.drinkreminder.data.roomdb.model.EyesModel
 import com.dungz.drinkreminder.data.roomdb.model.WorkingTimeModel
 import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
 import com.dungz.drinkreminder.utilities.AppConstant
@@ -40,7 +40,7 @@ class SetupTimeViewModel @Inject constructor(
     val eyeData = appRepository.getEyesInfo().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
-        EyesMode(
+        EyesModel(
             isNotificationOn = false,
             durationNotification = 35
         )
@@ -226,7 +226,7 @@ class SetupTimeViewModel @Inject constructor(
             time = time + state.eyesNotificationTime * 60 * 1000
         }
 
-        val eyesData = EyesMode(
+        val eyesData = EyesModel(
             isNotificationOn = state.eyesNotificationStatus,
             durationNotification = state.eyesNotificationTime,
             nextNotificationTime = nextNotificationTime.formatToString()

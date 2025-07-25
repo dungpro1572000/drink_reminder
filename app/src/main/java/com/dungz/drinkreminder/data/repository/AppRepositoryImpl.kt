@@ -8,7 +8,7 @@ import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
-import com.dungz.drinkreminder.data.roomdb.model.EyesMode
+import com.dungz.drinkreminder.data.roomdb.model.EyesModel
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysDrink
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysExercise
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysEyesRelax
@@ -44,13 +44,13 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         )
     }
 
-    override suspend fun setEyeInfo(eyesMode: EyesMode) {
+    override suspend fun setEyeInfo(eyesModel: EyesModel) {
         appDb.eyesDao().insert(
             EyesEntity(
-                isNotificationOn = eyesMode.isNotificationOn,
-                durationNotification = eyesMode.durationNotification,
-                nextNotificationTime = eyesMode.nextNotificationTime,
-                isChecked = eyesMode.isChecked
+                isNotificationOn = eyesModel.isNotificationOn,
+                durationNotification = eyesModel.durationNotification,
+                nextNotificationTime = eyesModel.nextNotificationTime,
+                isChecked = eyesModel.isChecked
             )
         )
     }
@@ -121,10 +121,10 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
         }
     }
 
-    override fun getEyesInfo(): Flow<EyesMode?> {
+    override fun getEyesInfo(): Flow<EyesModel?> {
         return appDb.eyesDao().getAllEyes().map {
             it?.let { eyesEntity ->
-                EyesMode(
+                EyesModel(
                     isNotificationOn = eyesEntity.isNotificationOn,
                     durationNotification = eyesEntity.durationNotification,
                     nextNotificationTime = eyesEntity.nextNotificationTime,

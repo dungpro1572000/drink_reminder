@@ -4,7 +4,7 @@ import com.dungz.drinkreminder.data.roomdb.entity.RecordCompleteEntity
 import com.dungz.drinkreminder.data.roomdb.entity.WorkingTime
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.data.roomdb.model.ExerciseModel
-import com.dungz.drinkreminder.data.roomdb.model.EyesMode
+import com.dungz.drinkreminder.data.roomdb.model.EyesModel
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysDrink
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysExercise
 import com.dungz.drinkreminder.data.roomdb.model.Record5DaysEyesRelax
@@ -18,7 +18,7 @@ interface AppRepository {
     // setter
     suspend fun setDrinkWaterInfo(drinkWaterModel: DrinkWaterModel)
     suspend fun setExerciseInfo(exerciseModel: ExerciseModel)
-    suspend fun setEyeInfo(eyesMode: EyesMode)
+    suspend fun setEyeInfo(eyesModel: EyesModel)
     suspend fun setRecordComplete(recordCompleteModel: RecordCompleteModel)
     suspend fun setWorkTime(workingTimeModel: WorkingTimeModel)
 
@@ -26,7 +26,7 @@ interface AppRepository {
 
     fun getDrinkWaterInfo(): Flow<DrinkWaterModel?>
     fun getExerciseInfo(): Flow<ExerciseModel?>
-    fun getEyesInfo(): Flow<EyesMode?>
+    fun getEyesInfo(): Flow<EyesModel?>
 
     fun getDrinkCount(): Flow<Int>
     fun getEyesRelaxCount(): Flow<Int>
