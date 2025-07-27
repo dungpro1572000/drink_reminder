@@ -47,23 +47,23 @@ class HomeViewModel @Inject constructor(
         workingTime,
     ) { _, drink, eyes, exercise, workingTime ->
         val drinkTimeLeft =
-            if (drink?.nextNotificationTime == null || workingTime == null) null else
+            if (drink?.inComingAlarm == null || workingTime == null) null else
                 calcTimeLeft(
-                    drink.nextNotificationTime,
+                    drink.inComingAlarm,
                     workingTime.endTime,
                     drink.durationNotification
                 ).toInt()
         val eyesRelaxTimeLeft =
-            if (eyes?.nextNotificationTime == null || workingTime == null) null else
+            if (eyes?.inComingAlarm == null || workingTime == null) null else
                 calcTimeLeft(
-                    eyes.nextNotificationTime,
+                    eyes.inComingAlarm,
                     workingTime.endTime,
                     eyes.durationNotification
                 ).toInt()
         val exerciseTimeLeft =
-            if (exercise?.nextNotificationTime == null || workingTime == null) null else
+            if (exercise?.inComingAlarm == null || workingTime == null) null else
                 calcTimeLeft(
-                    exercise.nextNotificationTime,
+                    exercise.inComingAlarm,
                     workingTime.endTime,
                     exercise.durationNotification
                 ).toInt()
@@ -91,9 +91,9 @@ class HomeViewModel @Inject constructor(
             drinkTimeLeft = drinkTimeLeft,
             eyesRelaxTimeLeft = eyesRelaxTimeLeft,
             exerciseTimeLeft = exerciseTimeLeft,
-            drinkTime = drink?.nextNotificationTime,
-            eyesRelaxTime = eyes?.nextNotificationTime,
-            exerciseTime = exercise?.nextNotificationTime,
+            drinkTime = drink?.inComingAlarm,
+            eyesRelaxTime = eyes?.inComingAlarm,
+            exerciseTime = exercise?.inComingAlarm,
             isCheckedDrink = isCheckedDrink,
             isCheckedEyes = isCheckedEyes,
             isCheckedExercise = isCheckedExercise

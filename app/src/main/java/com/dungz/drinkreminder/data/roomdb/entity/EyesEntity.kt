@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 data class EyesEntity(
     @PrimaryKey
     val id: Int = 0,
-    val nextNotificationTime: String = "08:35",
+    val inComingAlarm: String = "08:35",
+    val nextInComingAlarm:String = "08:00",
     val isNotificationOn: Boolean = false,
     // Duration in minutes
     val durationNotification:Int = 35,

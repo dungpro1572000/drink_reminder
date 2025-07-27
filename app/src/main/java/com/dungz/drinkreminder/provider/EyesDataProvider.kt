@@ -3,7 +3,12 @@ package com.dungz.drinkreminder.provider
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.data.roomdb.model.EyesModel
 import com.dungz.drinkreminder.di.IoDispatcher
+import com.dungz.drinkreminder.framework.sync.alarm.AlarmScheduler
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
+import com.dungz.drinkreminder.utilities.formatToString
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -11,7 +16,9 @@ import javax.inject.Inject
 class EyesDataProvider @Inject constructor(
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
-    private val appRepository: AppRepository
+    private val appRepository: AppRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val timeProvider: TimeProvider,
 ) {
 
     val coroutineScope =
@@ -21,21 +28,37 @@ class EyesDataProvider @Inject constructor(
         initialValue = null
     )
 
-    fun setEyesData(
-        nextNotificationTime: String = "08:40",
+    suspend fun setEyesData(
         isNotificationOn: Boolean = true,
         durationNotification: Int = 40,
         isChecked: Boolean = false,
     ) {
-        val eyesModel = EyesModel(
-            nextNotificationTime = nextNotificationTime,
-            isNotificationOn = isNotificationOn,
-            durationNotification = durationNotification,
-            isChecked = isChecked
-        )
+            val workingTime = timeProvider.workingTime.firstOrNull()
+            if (workingTime != null) {
+                val inComingAlarm = workingTime.startTime.convertStringTimeToHHmm().apply {
+                    time += durationNotification * 60 * 1000
+                }
+                val nextInComingAlarm = inComingAlarm.apply {
+                    time += durationNotification * 60 * 1000
+                }
+                val eyesModel = EyesModel(
+                    inComingAlarm = inComingAlarm.formatToString(),
+                    nextInComingAlarm = nextInComingAlarm.formatToString(),
+                    isNotificationOn = isNotificationOn,
+                    durationNotification = durationNotification,
+                    isChecked = isChecked
+                )
+                appRepository.setEyeInfo(eyesModel)
 
+        }
+    }
+
+    fun setUpReminderTime(){
         coroutineScope.launch {
-            appRepository.setEyeInfo(eyesModel)
+            val workingTime = timeProvider.workingTime.firstOrNull()
+            if (workingTime != null) {
+
+            }
         }
     }
 

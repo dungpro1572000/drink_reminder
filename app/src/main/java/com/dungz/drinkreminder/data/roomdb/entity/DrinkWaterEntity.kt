@@ -7,11 +7,12 @@ import androidx.room.PrimaryKey
 data class DrinkWaterEntity(
     @PrimaryKey()
     val id: Int = 0,
-    val nextNotificationTime: String = "08:40",
+    val inComingAlarm: String = "08:40",
+    val nextInComingAlarm: String = "08:00",
     val isNotificationOn: Boolean = true,
     // Duration in minutes
     val durationNotification: Int = 40,
-    val isChecked : Boolean= false,
+    val isChecked: Boolean = false,
 ) {
     companion object {
         val listDuration = listOf<Int>(40, 50, 60)

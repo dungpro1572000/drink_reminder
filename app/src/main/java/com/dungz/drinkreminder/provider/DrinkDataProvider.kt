@@ -3,12 +3,14 @@ package com.dungz.drinkreminder.provider
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.data.roomdb.model.DrinkWaterModel
 import com.dungz.drinkreminder.di.IoDispatcher
+import com.dungz.drinkreminder.utilities.convertStringTimeToHHmm
+import com.dungz.drinkreminder.utilities.formatToString
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DrinkDataProvider @Inject constructor(
@@ -22,21 +24,28 @@ class DrinkDataProvider @Inject constructor(
         null
     )
 
-    fun setDrinkData(
-        nextNotificationTime: String = "08:40",
+    suspend fun setDrinkData(
         isNotificationOn: Boolean = true,
         durationNotification: Int = 40,
         isChecked: Boolean = false,
     ) {
-        val drinkWaterModel = DrinkWaterModel(
-            nextNotificationTime = nextNotificationTime,
-            isNotificationOn = isNotificationOn,
-            durationNotification = durationNotification,
-            isChecked = isChecked
-        )
+        val workingTime = appRepository.getWorkingTime().firstOrNull()
+        if (workingTime != null) {
+            val inComingAlarm = workingTime.startTime.convertStringTimeToHHmm().apply {
+                time += durationNotification * 60 * 1000
+            }
+            val nextInComingAlarm = inComingAlarm.apply {
+                time += durationNotification * 60 * 1000
+            }
+            val drinkModel = DrinkWaterModel(
+                inComingAlarm = inComingAlarm.formatToString(),
+                nextInComingAlarm = nextInComingAlarm.formatToString(),
+                isNotificationOn = isNotificationOn,
+                durationNotification = durationNotification,
+                isChecked = isChecked
+            )
 
-        coroutineScope.launch {
-            appRepository.setDrinkWaterInfo(drinkWaterModel)
+            appRepository.setDrinkWaterInfo(drinkModel)
         }
     }
 

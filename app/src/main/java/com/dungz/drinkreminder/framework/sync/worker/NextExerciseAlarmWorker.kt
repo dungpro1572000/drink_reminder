@@ -19,8 +19,6 @@ import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -38,7 +36,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
         if (exerciseInfo == null || workingTime == null) {
             return Result.failure()
         }
-        val nextExerciseTime = exerciseInfo.nextNotificationTime.convertStringTimeToHHmm().apply {
+        val nextExerciseTime = exerciseInfo.inComingAlarm.convertStringTimeToHHmm().apply {
             time =
                 time + exerciseInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
@@ -49,7 +47,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
         if (nextExerciseTime.before(afternoonEndTime) && workingDay.contains(today)) {
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(
-                    nextNotificationTime = nextExerciseTime.formatToString(),
+                    inComingAlarm = nextExerciseTime.formatToString(),
                     isChecked = false, // Reset the checked state for the next notification
                 )
             )
@@ -64,7 +62,7 @@ class NextExerciseAlarmWorker @AssistedInject constructor(
             }
             appRepository.setExerciseInfo(
                 exerciseInfo.copy(
-                    nextNotificationTime = newDayTime.formatToString(),
+                    inComingAlarm = newDayTime.formatToString(),
                     isChecked = false, // Reset the checked state for the next notification
                 )
             )

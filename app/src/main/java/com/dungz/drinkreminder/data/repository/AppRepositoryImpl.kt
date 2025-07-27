@@ -27,7 +27,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             DrinkWaterEntity(
                 isNotificationOn = drinkWaterModel.isNotificationOn,
                 durationNotification = drinkWaterModel.durationNotification,
-                nextNotificationTime = drinkWaterModel.nextNotificationTime,
+                inComingAlarm = drinkWaterModel.inComingAlarm,
                 isChecked = drinkWaterModel.isChecked
             )
         )
@@ -38,7 +38,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             ExerciseEntity(
                 isNotificationOn = exerciseModel.isNotificationOn,
                 durationNotification = exerciseModel.durationNotification,
-                nextNotificationTime = exerciseModel.nextNotificationTime,
+                inComingAlarm = exerciseModel.inComingAlarm,
                 isChecked = exerciseModel.isChecked
             )
         )
@@ -49,7 +49,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
             EyesEntity(
                 isNotificationOn = eyesModel.isNotificationOn,
                 durationNotification = eyesModel.durationNotification,
-                nextNotificationTime = eyesModel.nextNotificationTime,
+                inComingAlarm = eyesModel.inComingAlarm,
                 isChecked = eyesModel.isChecked
             )
         )
@@ -101,7 +101,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 DrinkWaterModel(
                     isNotificationOn = drinkWaterEntity.isNotificationOn,
                     durationNotification = drinkWaterEntity.durationNotification,
-                    nextNotificationTime = drinkWaterEntity.nextNotificationTime,
+                    inComingAlarm = drinkWaterEntity.inComingAlarm,
                     isChecked = drinkWaterEntity.isChecked
                 )
             }
@@ -114,7 +114,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 ExerciseModel(
                     isNotificationOn = exerciseEntity.isNotificationOn,
                     durationNotification = exerciseEntity.durationNotification,
-                    nextNotificationTime = exerciseEntity.nextNotificationTime,
+                    inComingAlarm = exerciseEntity.inComingAlarm,
                     isChecked = exerciseEntity.isChecked
                 )
             }
@@ -127,7 +127,7 @@ class AppRepositoryImpl @Inject constructor(private val appDb: AppDatabase) : Ap
                 EyesModel(
                     isNotificationOn = eyesEntity.isNotificationOn,
                     durationNotification = eyesEntity.durationNotification,
-                    nextNotificationTime = eyesEntity.nextNotificationTime,
+                    inComingAlarm = eyesEntity.inComingAlarm,
                     isChecked = eyesEntity.isChecked
                 )
             }

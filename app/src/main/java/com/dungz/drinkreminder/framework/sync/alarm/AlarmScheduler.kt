@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import com.dungz.drinkreminder.data.repository.AppRepository
 import com.dungz.drinkreminder.di.IoDispatcher
@@ -91,6 +92,69 @@ class AlarmScheduler @Inject constructor(
             pendingIntent
         )
     }
+
+    fun clearAllAlarm(
+    ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            alarmManager.cancelAll()
+        } else {
+            val drinkIntent = PendingIntent.getBroadcast(
+                context,
+                AppConstant.ID_DRINK_WATER,
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = AppConstant.ALARM_ACTION_RECEIVER
+                    `package` = AppConstant.packageName
+                    putExtras(
+                        Bundle().apply {
+                            putInt(
+                                AppConstant.ALARM_BUNDLE_ID,
+                                AppConstant.ID_DRINK_WATER
+                            )
+                        },
+                    )
+                },
+                PendingIntent.FLAG_MUTABLE
+            )
+            alarmManager.cancel(drinkIntent)
+            val exerciseIntent = PendingIntent.getBroadcast(
+                context,
+                AppConstant.ID_EXERCISE,
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = AppConstant.ALARM_ACTION_RECEIVER
+                    `package` = AppConstant.packageName
+                    putExtras(
+                        Bundle().apply {
+                            putInt(
+                                AppConstant.ALARM_BUNDLE_ID,
+                                AppConstant.ID_EXERCISE
+                            )
+                        },
+                    )
+                },
+                PendingIntent.FLAG_MUTABLE
+            )
+            alarmManager.cancel { exerciseIntent }
+
+            val eyesIntent = PendingIntent.getBroadcast(
+                context,
+                AppConstant.ID_EYES_RELAX,
+                Intent(context, AlarmReceiver::class.java).apply {
+                    action = AppConstant.ALARM_ACTION_RECEIVER
+                    `package` = AppConstant.packageName
+                    putExtras(
+                        Bundle().apply {
+                            putInt(
+                                AppConstant.ALARM_BUNDLE_ID,
+                                AppConstant.ID_EYES_RELAX
+                            )
+                        },
+                    )
+                },
+                PendingIntent.FLAG_MUTABLE
+            )
+            alarmManager.cancel { eyesIntent }
+        }
+    }
 }
 
 fun Context.setUpAlarm(
@@ -113,5 +177,4 @@ fun Context.setUpAlarm(
         timeMillis,
         pendingIntent
     )
-
 }

@@ -35,7 +35,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         if (eyesRelaxInfo == null || workingTime == null) {
             return Result.failure()
         }
-        val nextEyesRelaxTime = eyesRelaxInfo.nextNotificationTime.convertStringTimeToHHmm().apply {
+        val nextEyesRelaxTime = eyesRelaxInfo.inComingAlarm.convertStringTimeToHHmm().apply {
             time =
                 time + eyesRelaxInfo.durationNotification * 60 * 1000 // Convert minutes to milliseconds
         }
@@ -47,7 +47,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
         if (nextEyesRelaxTime.before(afternoonEndTime) && workingDay.contains(today)) {
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(
-                    nextNotificationTime = nextEyesRelaxTime.formatToString(),
+                    inComingAlarm = nextEyesRelaxTime.formatToString(),
                     isChecked = false // Reset the checked state for the next notification
                 )
             )
@@ -63,7 +63,7 @@ class NextEyesAlarmWorker @AssistedInject constructor(
             }
             appRepository.setEyeInfo(
                 eyesRelaxInfo.copy(
-                    nextNotificationTime = newDayTime.formatToString(),
+                    inComingAlarm = newDayTime.formatToString(),
                     isChecked = false // Reset the checked state for the next notification
                 )
             )

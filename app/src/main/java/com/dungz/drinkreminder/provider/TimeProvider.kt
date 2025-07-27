@@ -9,14 +9,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class TimeProvider @Inject constructor(private val appDb: AppRepository,
+class TimeProvider @Inject constructor(
+    private val appDb: AppRepository,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
     private val alarmScheduler: AlarmScheduler,
-    ) {
+) {
     val coroutineScope = CoroutineScope(ioDispatcher + SupervisorJob())
     val workingTime = appDb.getWorkingTime().stateIn(
         coroutineScope,
@@ -24,14 +24,12 @@ class TimeProvider @Inject constructor(private val appDb: AppRepository,
         initialValue = null
     )
 
-    fun setWorkingTime(startTime: String, endTime: String, repeatDay: List<Int>) {
+    suspend fun setWorkingTime(startTime: String, endTime: String, repeatDay: List<Int>) {
         val workingModel = WorkingTimeModel(startTime, endTime, repeatDay)
-        coroutineScope.launch {
-            appDb.setWorkTime(workingModel)
-        }
+        appDb.setWorkTime(workingModel)
     }
 
-    fun setUpReminderTime(){
+    fun setUpReminderTime() {
 
     }
 

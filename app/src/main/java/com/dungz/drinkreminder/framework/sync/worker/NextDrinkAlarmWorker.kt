@@ -19,10 +19,7 @@ import com.dungz.drinkreminder.utilities.minuteBetween2Date
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class NextDrinkAlarmWorker @AssistedInject constructor(
@@ -45,7 +42,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
 
             val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
-            val newDrinkTimer = drinkAlarm.nextNotificationTime.convertStringTimeToHHmm().apply {
+            val newDrinkTimer = drinkAlarm.inComingAlarm.convertStringTimeToHHmm().apply {
                 time = time + drinkAlarm.durationNotification * 60 * 1000
             }
 
@@ -54,7 +51,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
             if (newDrinkTimer.before(afternoonEndTime) && workingDay.contains(today)) {
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(
-                        nextNotificationTime = newDrinkTimer.formatToString(),
+                        inComingAlarm = newDrinkTimer.formatToString(),
                         isChecked = false,
                     )
                 )
@@ -70,7 +67,7 @@ class NextDrinkAlarmWorker @AssistedInject constructor(
                 }
                 appRepository.setDrinkWaterInfo(
                     drinkAlarm.copy(
-                        nextNotificationTime = newDayTime.formatToString(),
+                        inComingAlarm = newDayTime.formatToString(),
                         isChecked = false
                     )
                 )

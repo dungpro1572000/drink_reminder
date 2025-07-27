@@ -1,13 +1,9 @@
 package com.dungz.drinkreminder.utilities
 
 import android.icu.util.Calendar
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import java.text.SimpleDateFormat
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -85,6 +81,24 @@ fun formatLongToStringTime(seconds: Int): String {
     val m = (seconds % 3600) / 60
     val s = seconds % 60
     return String.format(Locale.US, "%02d:%02d:%02d", h, m, s)
+}
+
+fun generateTimeSlots(start: String, end: String, intervalMinutes: Long): List<String> {
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
+    val startTime = LocalTime.parse(start, formatter)
+    val endTime = LocalTime.parse(end, formatter)
+
+    val times = mutableListOf<String>()
+    var current = startTime
+    while (!current.isAfter(endTime)) {
+        times.add(current.format(formatter))
+        current = current.plusMinutes(intervalMinutes)
+    }
+
+    times.removeAt(0)
+    times.removeAt(times.size - 1)
+
+    return times
 }
 
 //fun calcTimeLeft(timeString: String?, lastWorkingTime: String, nextTimeDuration: Int): Long {

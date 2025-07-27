@@ -64,9 +64,9 @@ class SetUpEveryDayWorker @AssistedInject constructor(
                 time + dataExercise.durationNotification * 60 * 1000 // Convert minutes to milliseconds
             }
             // Update the repository with the new next notification times
-            apiRepository.setDrinkWaterInfo(dataDrink.copy(nextNotificationTime = nextDrinkAlarm.formatToString()))
-            apiRepository.setEyeInfo(dateEyes.copy(nextNotificationTime = nextEyeTime.formatToString()))
-            apiRepository.setExerciseInfo(dataExercise.copy(nextNotificationTime = nextExerciseTime.formatToString()))
+            apiRepository.setDrinkWaterInfo(dataDrink.copy(inComingAlarm = nextDrinkAlarm.formatToString()))
+            apiRepository.setEyeInfo(dateEyes.copy(inComingAlarm = nextEyeTime.formatToString()))
+            apiRepository.setExerciseInfo(dataExercise.copy(inComingAlarm = nextExerciseTime.formatToString()))
             // Setup alarms
             alarmScheduler.setupAlarmDate(
                 dateTime = drinkTime, Bundle().apply {
